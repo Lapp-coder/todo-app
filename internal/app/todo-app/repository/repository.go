@@ -1,0 +1,41 @@
+package repository
+
+import (
+	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
+	"github.com/jmoiron/sqlx"
+)
+
+type Authorization interface {
+	CreateUser(user model.User) (int, error)
+	GetByEmail(email string) (model.User, error)
+}
+
+type TodoList interface {
+	Create(userId int, list model.TodoList) (int, error)
+	GetAll(userId int) ([]model.TodoList, error)
+	GetById(userId, listId int) (model.TodoList, error)
+	Update(listId int, input struct{Title *string; Description *string}) error
+	Delete(listId int) error
+}
+
+type TodoItem interface {
+	Create(listId int, item model.TodoItem) (int, error)
+	GetAll(listId int) ([]model.TodoItem, error)
+	GetById(userId, itemId int) (model.TodoItem, error)
+	Update(itemId int, input struct{Title *string; Description *string; Done *bool}) error
+	Delete(itemId int) error
+}
+
+type Repository struct {
+	Authorization
+	TodoList
+	TodoItem
+}
+
+func NewRepository(db *sqlx.DB) *Repository {
+	return &Repository{
+		Authorization: NewAuthSQL(db),
+		TodoList:      NewTodoListSQL(db),
+		TodoItem:      NewTodoItemSQL(db),
+	}
+}
