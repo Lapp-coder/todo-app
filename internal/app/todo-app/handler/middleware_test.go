@@ -37,7 +37,7 @@ func TestHandler_userAuthentication(t *testing.T) {
 			expectedResponseBody: "1",
 		},
 		{
-			name:                 "invalid header name",
+			name:                 "Empty header name",
 			headerName:           "",
 			headerValue:          "Bearer token",
 			token:                "token",
@@ -46,14 +46,23 @@ func TestHandler_userAuthentication(t *testing.T) {
 			expectedResponseBody: `{"error":"empty auth header"}`,
 		},
 		{
-			name:                 "invalid header values",
+			name:                 "Invalid header name",
+			headerName:           "invalid",
+			headerValue:          "Bearer token",
+			token:                "token",
+			mockBehavior:         func(s *mockService.MockAuthorization, token string) {},
+			expectedStatusCode:   401,
+			expectedResponseBody: `{"error":"empty auth header"}`,
+		},
+		{
+			name:                 "Empty header values",
 			headerName:           "Authorization",
 			mockBehavior:         func(s *mockService.MockAuthorization, token string) {},
 			expectedStatusCode:   401,
 			expectedResponseBody: `{"error":"empty auth header"}`,
 		},
 		{
-			name:                 "invalid bearer",
+			name:                 "Invalid bearer",
 			headerName:           "Authorization",
 			headerValue:          "NoBearer token",
 			mockBehavior:         func(s *mockService.MockAuthorization, token string) {},
@@ -61,7 +70,7 @@ func TestHandler_userAuthentication(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid auth header"}`,
 		},
 		{
-			name:                 "invalid token",
+			name:                 "Empty token",
 			headerName:           "Authorization",
 			headerValue:          "Bearer ",
 			mockBehavior:         func(s *mockService.MockAuthorization, token string) {},
@@ -69,7 +78,7 @@ func TestHandler_userAuthentication(t *testing.T) {
 			expectedResponseBody: `{"error":"token is empty"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			headerName:  "Authorization",
 			headerValue: "Bearer token",
 			token:       "token",

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/request"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -15,7 +14,7 @@ type TodoList interface {
 	Create(userId int, list model.TodoList) (int, error)
 	GetAll(userId int) ([]model.TodoList, error)
 	GetById(userId, listId int) (model.TodoList, error)
-	Update(listId int, update request.UpdateTodoList) error
+	Update(listId int, list model.TodoList) error
 	Delete(listId int) error
 }
 
@@ -23,7 +22,7 @@ type TodoItem interface {
 	Create(listId int, item model.TodoItem) (int, error)
 	GetAll(listId int) ([]model.TodoItem, error)
 	GetById(userId, itemId int) (model.TodoItem, error)
-	Update(itemId int, update request.UpdateTodoItem) error
+	Update(itemId int, item model.TodoItem) error
 	Delete(itemId int) error
 }
 

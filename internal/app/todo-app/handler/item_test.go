@@ -29,7 +29,19 @@ func TestHandler_createItem(t *testing.T) {
 		expectedResponseBody string
 	}{
 		{
-			name:        "OK",
+			name:        "OK_AllFields",
+			inputUserId: 1,
+			inputParam:  1,
+			inputBody:   `{"title": "test", "description":"testing", "done": false}`,
+			item:        model.TodoItem{Title: "test", Description: "testing", Done: false},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {
+				s.EXPECT().Create(userId, listId, item).Return(1, nil)
+			},
+			expectedStatusCode:   201,
+			expectedResponseBody: `{"item id":1}`,
+		},
+		{
+			name:        "OK_WithoutDone",
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description":"testing"}`,
@@ -41,7 +53,19 @@ func TestHandler_createItem(t *testing.T) {
 			expectedResponseBody: `{"item id":1}`,
 		},
 		{
-			name:                 "invalid param",
+			name:        "OK_WithoutDescription",
+			inputUserId: 1,
+			inputParam:  1,
+			inputBody:   `{"title": "test"}`,
+			item:        model.TodoItem{Title: "test"},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {
+				s.EXPECT().Create(userId, listId, item).Return(1, nil)
+			},
+			expectedStatusCode:   201,
+			expectedResponseBody: `{"item id":1}`,
+		},
+		{
+			name:                 "Invalid param",
 			inputUserId:          1,
 			inputParam:           "invalid",
 			mockBehavior:         func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {},
@@ -49,7 +73,7 @@ func TestHandler_createItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid the param"}`,
 		},
 		{
-			name:                 "empty fields",
+			name:                 "Empty fields",
 			inputUserId:          1,
 			inputParam:           1,
 			inputBody:            `{}`,
@@ -58,7 +82,7 @@ func TestHandler_createItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "short title",
+			name:                 "Short title",
 			inputBody:            `{"title": "t"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -67,7 +91,7 @@ func TestHandler_createItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "long title",
+			name:                 "Long title",
 			inputBody:            `{"title": "veryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitle"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -76,7 +100,7 @@ func TestHandler_createItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "short description",
+			name:                 "Short description",
 			inputBody:            `{"title": "test", "description": "t"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -85,7 +109,7 @@ func TestHandler_createItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "long description",
+			name:                 "Long description",
 			inputBody:            `{"title": "test", "description": "VeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLong"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -94,7 +118,7 @@ func TestHandler_createItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:        "invalid user id",
+			name:        "Invalid user id",
 			inputUserId: "invalid",
 			inputParam:  1,
 			mockBehavior: func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {
@@ -103,7 +127,7 @@ func TestHandler_createItem(t *testing.T) {
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description":"testing"}`,
@@ -184,7 +208,7 @@ func TestHandler_getAllItems(t *testing.T) {
 			expectedResponseBody: `{"items":[{"Id":1,"ListId":1,"Title":"test","Description":"testing","Done":false},{"Id":2,"ListId":1,"Title":"test2","Description":"testing2","Done":true}]}`,
 		},
 		{
-			name:        "invalid param",
+			name:        "Invalid param",
 			inputUserId: 1,
 			inputParam:  "invalid",
 			mockBehavior: func(s *mockService.MockTodoItem, items []model.TodoItem, userId, listId interface{}) {
@@ -193,7 +217,7 @@ func TestHandler_getAllItems(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid the param"}`,
 		},
 		{
-			name:        "invalid user id",
+			name:        "Invalid user id",
 			inputUserId: "invalid",
 			inputParam:  1,
 			mockBehavior: func(s *mockService.MockTodoItem, items []model.TodoItem, userId, listId interface{}) {
@@ -202,7 +226,7 @@ func TestHandler_getAllItems(t *testing.T) {
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
 			mockBehavior: func(s *mockService.MockTodoItem, items []model.TodoItem, userId, listId interface{}) {
@@ -275,7 +299,7 @@ func TestHandler_getItemById(t *testing.T) {
 			expectedResponseBody: `{"item":{"Id":1,"ListId":1,"Title":"test","Description":"testing","Done":false}}`,
 		},
 		{
-			name:        "invalid param",
+			name:        "Invalid param",
 			inputUserId: 1,
 			inputParam:  "invalid",
 			item:        model.TodoItem{Id: 1, ListId: 1, Title: "test", Description: "testing", Done: false},
@@ -285,7 +309,7 @@ func TestHandler_getItemById(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid the param"}`,
 		},
 		{
-			name:        "invalid user id",
+			name:        "Invalid user id",
 			inputUserId: "invalid",
 			inputParam:  1,
 			item:        model.TodoItem{Id: 1, ListId: 1, Title: "test", Description: "testing", Done: false},
@@ -296,7 +320,7 @@ func TestHandler_getItemById(t *testing.T) {
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
 			item:        model.TodoItem{Id: 1, ListId: 1, Title: "test", Description: "testing", Done: false},
@@ -360,7 +384,7 @@ func TestHandler_updateItem(t *testing.T) {
 		expectedResponseBody string
 	}{
 		{
-			name:        "OK",
+			name:        "OK_AllFields",
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description": "testing", "done": true}`,
@@ -372,7 +396,43 @@ func TestHandler_updateItem(t *testing.T) {
 			expectedResponseBody: `{"result":"the item update was successful"}`,
 		},
 		{
-			name:                 "invalid param",
+			name:        "OK_WithoutDone",
+			inputUserId: 1,
+			inputParam:  1,
+			inputBody:   `{"title": "test", "description": "testing"}`,
+			item:        model.TodoItem{Title: "test", Description: "testing"},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
+				s.EXPECT().Update(userId, itemId, item).Return(nil)
+			},
+			expectedStatusCode:   200,
+			expectedResponseBody: `{"result":"the item update was successful"}`,
+		},
+		{
+			name:        "OK_WithoutDescription",
+			inputUserId: 1,
+			inputParam:  1,
+			inputBody:   `{"title": "test"}`,
+			item:        model.TodoItem{Title: "test"},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
+				s.EXPECT().Update(userId, itemId, item).Return(nil)
+			},
+			expectedStatusCode:   200,
+			expectedResponseBody: `{"result":"the item update was successful"}`,
+		},
+		{
+			name:        "OK_WithDone",
+			inputUserId: 1,
+			inputParam:  1,
+			inputBody:   `{"done": true}`,
+			item:        model.TodoItem{Done: true},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
+				s.EXPECT().Update(userId, itemId, item).Return(nil)
+			},
+			expectedStatusCode:   200,
+			expectedResponseBody: `{"result":"the item update was successful"}`,
+		},
+		{
+			name:                 "Invalid param",
 			inputUserId:          1,
 			inputParam:           "invalid",
 			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {},
@@ -380,7 +440,7 @@ func TestHandler_updateItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid the param"}`,
 		},
 		{
-			name:                 "empty fields",
+			name:                 "Empty fields",
 			inputUserId:          1,
 			inputParam:           1,
 			inputBody:            `{}`,
@@ -389,7 +449,7 @@ func TestHandler_updateItem(t *testing.T) {
 			expectedResponseBody: `{"error":"update request has not values"}`,
 		},
 		{
-			name:                 "short title",
+			name:                 "Short title",
 			inputBody:            `{"title": "t"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -398,7 +458,7 @@ func TestHandler_updateItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "long title",
+			name:                 "Long title",
 			inputBody:            `{"title": "veryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitle"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -407,7 +467,7 @@ func TestHandler_updateItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "short description",
+			name:                 "Short description",
 			inputBody:            `{"title": "test", "description": "t"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -416,7 +476,7 @@ func TestHandler_updateItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "long description",
+			name:                 "Long description",
 			inputBody:            `{"title": "test", "description": "VeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLong"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -425,7 +485,7 @@ func TestHandler_updateItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "invalid user id",
+			name:                 "Invalid user id",
 			inputUserId:          "invalid",
 			inputParam:           1,
 			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {},
@@ -433,7 +493,7 @@ func TestHandler_updateItem(t *testing.T) {
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description": "testing", "done": true}`,
@@ -506,7 +566,7 @@ func TestHandler_deleteItem(t *testing.T) {
 			expectedResponseBody: `{"result":"the item deletion was successful"}`,
 		},
 		{
-			name:                 "invalid param",
+			name:                 "Invalid param",
 			inputUserId:          1,
 			inputParam:           "invalid",
 			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}) {},
@@ -514,7 +574,7 @@ func TestHandler_deleteItem(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid the param"}`,
 		},
 		{
-			name:                 "invalid user id",
+			name:                 "Invalid user id",
 			inputUserId:          "invalid",
 			inputParam:           1,
 			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}) {},
@@ -522,7 +582,7 @@ func TestHandler_deleteItem(t *testing.T) {
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
 			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}) {

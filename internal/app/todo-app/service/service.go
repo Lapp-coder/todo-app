@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/repository"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/request"
 )
 
 //go:generate mockgen -source=service.go --destination=mocks/mock.go
@@ -23,7 +22,7 @@ type TodoList interface {
 	Create(userId int, list model.TodoList) (int, error)
 	GetAll(userId int) ([]model.TodoList, error)
 	GetById(userId, listId int) (model.TodoList, error)
-	Update(userId, listId int, update request.UpdateTodoList) error
+	Update(userId, listId int, list model.TodoList) error
 	Delete(userId, listId int) error
 }
 
@@ -31,7 +30,7 @@ type TodoItem interface {
 	Create(userId, listId int, item model.TodoItem) (int, error)
 	GetAll(userId, listId int) ([]model.TodoItem, error)
 	GetById(userId, itemId int) (model.TodoItem, error)
-	Update(userId, itemId int, update request.UpdateTodoItem) error
+	Update(userId, itemId int, item model.TodoItem) error
 	Delete(userId, itemId int) error
 }
 

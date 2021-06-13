@@ -2,10 +2,11 @@ package handler
 
 import (
 	"errors"
+	"net/http"
+
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/request"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 // signUp godoc
@@ -40,7 +41,7 @@ func (h Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusCreated, map[string]interface{}{
+	respond(c, http.StatusCreated, gin.H{
 		"id": id,
 	})
 }
@@ -77,7 +78,7 @@ func (h Handler) signIn(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusOK, map[string]interface{}{
+	respond(c, http.StatusOK, gin.H{
 		"token": token,
 	})
 }

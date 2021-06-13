@@ -54,7 +54,7 @@ func (h Handler) createItem(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusCreated, map[string]interface{}{
+	respond(c, http.StatusCreated, gin.H{
 		"item id": itemId,
 	})
 }
@@ -91,7 +91,7 @@ func (h Handler) getAllItems(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusOK, map[string]interface{}{
+	respond(c, http.StatusOK, gin.H{
 		"items": items,
 	})
 }
@@ -128,7 +128,7 @@ func (h Handler) getItemById(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusOK, map[string]interface{}{
+	respond(c, http.StatusOK, gin.H{
 		"item": item,
 	})
 }
@@ -167,18 +167,19 @@ func (h Handler) updateItem(c *gin.Context) {
 		return
 	}
 
-	if err = req.Validate(); err != nil {
+	item, err := req.Validate()
+	if err != nil {
 		respondError(c, http.StatusBadRequest, err)
 		return
 	}
 
-	err = h.service.TodoItem.Update(userId, itemId, req)
+	err = h.service.TodoItem.Update(userId, itemId, item)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	respond(c, http.StatusOK, map[string]string{
+	respond(c, http.StatusOK, gin.H{
 		"result": "the item update was successful",
 	})
 }
@@ -214,7 +215,7 @@ func (h Handler) deleteItem(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusOK, map[string]interface{}{
+	respond(c, http.StatusOK, gin.H{
 		"result": "the item deletion was successful",
 	})
 }

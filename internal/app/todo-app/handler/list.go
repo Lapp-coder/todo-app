@@ -47,7 +47,7 @@ func (h Handler) createList(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusCreated, map[string]interface{}{
+	respond(c, http.StatusCreated, gin.H{
 		"list id": listId,
 	})
 }
@@ -77,7 +77,7 @@ func (h Handler) getAllLists(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusOK, map[string]interface{}{
+	respond(c, http.StatusOK, gin.H{
 		"lists": lists,
 	})
 }
@@ -114,7 +114,7 @@ func (h Handler) getListById(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusOK, map[string]interface{}{
+	respond(c, http.StatusOK, gin.H{
 		"list": list,
 	})
 }
@@ -153,18 +153,19 @@ func (h Handler) updateList(c *gin.Context) {
 		return
 	}
 
-	if err = req.Validate(); err != nil {
+	list, err := req.Validate()
+	if err != nil {
 		respondError(c, http.StatusBadRequest, err)
 		return
 	}
 
-	err = h.service.TodoList.Update(userId, listId, req)
+	err = h.service.TodoList.Update(userId, listId, list)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	respond(c, http.StatusOK, map[string]string{
+	respond(c, http.StatusOK, gin.H{
 		"result": "the list update was successful",
 	})
 }
@@ -200,7 +201,7 @@ func (h Handler) deleteList(c *gin.Context) {
 		return
 	}
 
-	respond(c, http.StatusOK, map[string]string{
+	respond(c, http.StatusOK, gin.H{
 		"result": "the list deletion was successful",
 	})
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/request"
 	"github.com/jmoiron/sqlx"
 	"strings"
 )
@@ -71,20 +70,20 @@ func (r *TodoListSQL) GetById(userId, listId int) (model.TodoList, error) {
 	return list, nil
 }
 
-func (r *TodoListSQL) Update(listId int, update request.UpdateTodoList) error {
+func (r *TodoListSQL) Update(listId int, list model.TodoList) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	placeHolderId := 1
 
-	if update.Title != nil {
+	if &list.Title != nil {
 		setValues = append(setValues, fmt.Sprintf("title=$%d", placeHolderId))
-		args = append(args, *update.Title)
+		args = append(args, list.Title)
 		placeHolderId++
 	}
 
-	if update.Description != nil {
+	if &list.Description != nil {
 		setValues = append(setValues, fmt.Sprintf("description=$%d", placeHolderId))
-		args = append(args, *update.Description)
+		args = append(args, list.Description)
 		placeHolderId++
 	}
 

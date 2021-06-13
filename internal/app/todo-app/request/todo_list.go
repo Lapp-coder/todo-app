@@ -2,6 +2,7 @@ package request
 
 import (
 	"errors"
+	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 
@@ -30,24 +31,29 @@ func (cl *CreateTodoList) Validate() error {
 	)
 }
 
-func (ul *UpdateTodoList) Validate() error {
-	var fields []*validation.FieldRules
+func (ul *UpdateTodoList) Validate() (model.TodoList, error) {
+	var (
+		fields []*validation.FieldRules
+		list   model.TodoList
+	)
 
 	if ul.Title == nil && ul.Description == nil {
-		return errors.New("update request has not values")
+		return list, errors.New("update request has not values")
 	}
 
 	if ul.Title != nil {
+		list.Title = *ul.Title
 		fields = append(fields, validation.Field(&ul.Title, validation.Length(2, 40)))
 	}
 
 	if ul.Description != nil {
+		list.Description = *ul.Description
 		fields = append(fields, validation.Field(&ul.Description, validation.Length(2, 100)))
 	}
 
 	if err := validation.ValidateStruct(ul, fields...); err != nil {
-		return errors.New("invalid input body")
+		return list, errors.New("invalid input body")
 	}
 
-	return nil
+	return list, nil
 }

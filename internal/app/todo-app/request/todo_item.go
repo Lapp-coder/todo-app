@@ -2,6 +2,7 @@ package request
 
 import (
 	"errors"
+	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 
@@ -32,24 +33,33 @@ func (ci *CreateTodoItem) Validate() error {
 	)
 }
 
-func (ui *UpdateTodoItem) Validate() error {
-	var fields []*validation.FieldRules
+func (ui *UpdateTodoItem) Validate() (model.TodoItem, error) {
+	var (
+		fields []*validation.FieldRules
+		item   model.TodoItem
+	)
 
 	if ui.Title == nil && ui.Description == nil && ui.Done == nil {
-		return errors.New("update request has not values")
+		return item, errors.New("update request has not values")
 	}
 
 	if ui.Title != nil {
+		item.Title = *ui.Title
 		fields = append(fields, validation.Field(&ui.Title, validation.Length(2, 40)))
 	}
 
 	if ui.Description != nil {
+		item.Description = *ui.Description
 		fields = append(fields, validation.Field(&ui.Description, validation.Length(2, 100)))
 	}
 
-	if err := validation.ValidateStruct(ui, fields...); err != nil {
-		return errors.New("invalid input body")
+	if ui.Done != nil {
+		item.Done = *ui.Done
 	}
 
-	return nil
+	if err := validation.ValidateStruct(ui, fields...); err != nil {
+		return item, errors.New("invalid input body")
+	}
+
+	return item, nil
 }

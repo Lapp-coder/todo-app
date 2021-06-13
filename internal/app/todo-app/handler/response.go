@@ -7,7 +7,7 @@ import (
 
 func respond(c *gin.Context, statusCode int, v interface{}) {
 	if err, ok := v.(error); ok {
-		logrus.Errorf("%v: %d, %s", c.ClientIP(), statusCode, err.Error())
+		logrus.Errorf("%s, %s: %d, %s", c.ClientIP(), c.Request.UserAgent(), statusCode, err.Error())
 
 		c.AbortWithStatusJSON(statusCode, map[string]string{
 			"error": err.Error(),

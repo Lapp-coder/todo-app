@@ -3,7 +3,6 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/request"
 	"strings"
 
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
@@ -56,26 +55,26 @@ func (r *TodoItemSQL) GetById(userId, itemId int) (model.TodoItem, error) {
 	return item, nil
 }
 
-func (r *TodoItemSQL) Update(itemId int, update request.UpdateTodoItem) error {
+func (r *TodoItemSQL) Update(itemId int, item model.TodoItem) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	placeHolderId := 1
 
-	if update.Title != nil {
+	if &item.Title != nil {
 		setValues = append(setValues, fmt.Sprintf("title=$%d", placeHolderId))
-		args = append(args, *update.Title)
+		args = append(args, item.Title)
 		placeHolderId++
 	}
 
-	if update.Description != nil {
+	if &item.Description != nil {
 		setValues = append(setValues, fmt.Sprintf("description=$%d", placeHolderId))
-		args = append(args, *update.Description)
+		args = append(args, item.Description)
 		placeHolderId++
 	}
 
-	if update.Done != nil {
+	if &item.Done != nil {
 		setValues = append(setValues, fmt.Sprintf("done=$%d", placeHolderId))
-		args = append(args, *update.Done)
+		args = append(args, item.Done)
 		placeHolderId++
 	}
 
@@ -86,7 +85,7 @@ func (r *TodoItemSQL) Update(itemId int, update request.UpdateTodoItem) error {
 		todoItemsTable, strings.Join(setValues, ", "), placeHolderId),
 		args...)
 	if err != nil {
-		return errors.New("error occurred when update the item")
+		return errors.New("error occurred when item the item")
 	}
 
 	return nil

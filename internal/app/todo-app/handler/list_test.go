@@ -29,7 +29,7 @@ func TestHandler_createList(t *testing.T) {
 		expectedResponseBody string
 	}{
 		{
-			name:        "OK",
+			name:        "OK_AllFields",
 			inputBody:   `{"title":"Test","description":"testing, testing, testing..."}`,
 			inputUserId: 1,
 			inputList:   model.TodoList{Title: "Test", Description: "testing, testing, testing..."},
@@ -40,7 +40,18 @@ func TestHandler_createList(t *testing.T) {
 			expectedResponseBody: `{"list id":1}`,
 		},
 		{
-			name:                 "empty fields",
+			name:        "OK_WithoutDescription",
+			inputBody:   `{"title":"Test"}`,
+			inputUserId: 1,
+			inputList:   model.TodoList{Title: "Test"},
+			mockBehavior: func(s *mockService.MockTodoList, userId int, list model.TodoList) {
+				s.EXPECT().Create(userId, list).Return(1, nil)
+			},
+			expectedStatusCode:   201,
+			expectedResponseBody: `{"list id":1}`,
+		},
+		{
+			name:                 "Empty fields",
 			inputBody:            `{}`,
 			inputUserId:          1,
 			mockBehavior:         func(s *mockService.MockTodoList, userId int, list model.TodoList) {},
@@ -48,7 +59,7 @@ func TestHandler_createList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "short title",
+			name:                 "Short title",
 			inputBody:            `{"title": "t"}`,
 			inputUserId:          1,
 			mockBehavior:         func(s *mockService.MockTodoList, userId int, list model.TodoList) {},
@@ -56,7 +67,7 @@ func TestHandler_createList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "long title",
+			name:                 "Long title",
 			inputBody:            `{"title": "veryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitle"}`,
 			inputUserId:          1,
 			mockBehavior:         func(s *mockService.MockTodoList, userId int, list model.TodoList) {},
@@ -64,7 +75,7 @@ func TestHandler_createList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "short description",
+			name:                 "Short description",
 			inputBody:            `{"title": "test", "description": "t"}`,
 			inputUserId:          1,
 			mockBehavior:         func(s *mockService.MockTodoList, userId int, list model.TodoList) {},
@@ -72,7 +83,7 @@ func TestHandler_createList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "long description",
+			name:                 "Long description",
 			inputBody:            `{"title": "test", "description": "VeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLong"}`,
 			inputUserId:          1,
 			mockBehavior:         func(s *mockService.MockTodoList, userId int, list model.TodoList) {},
@@ -80,7 +91,7 @@ func TestHandler_createList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			inputBody:   `{"title": "test", "description": "testing"}`,
 			inputList:   model.TodoList{Title: "test", Description: "testing"},
 			inputUserId: 1,
@@ -155,7 +166,7 @@ func TestHandler_getAllLists(t *testing.T) {
 			expectedResponseBody: `{"lists":[{"Id":1,"Title":"test","Description":"testing"},{"Id":2,"Title":"test2","Description":"testing2"}]}`,
 		},
 		{
-			name:        "null lists",
+			name:        "No lists",
 			inputUserId: 1,
 			mockBehavior: func(s *mockService.MockTodoList, userId interface{}, lists []model.TodoList) {
 				s.EXPECT().GetAll(userId).Return(lists, nil)
@@ -164,14 +175,14 @@ func TestHandler_getAllLists(t *testing.T) {
 			expectedResponseBody: `{"lists":null}`,
 		},
 		{
-			name:                 "invalid user id",
+			name:                 "Invalid user id",
 			inputUserId:          "invalid",
 			mockBehavior:         func(s *mockService.MockTodoList, userId interface{}, lists []model.TodoList) {},
 			expectedStatusCode:   500,
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			inputUserId: 1,
 			mockBehavior: func(s *mockService.MockTodoList, userId interface{}, lists []model.TodoList) {
 				s.EXPECT().GetAll(userId).Return(nil, errors.New("failed to get all the lists"))
@@ -243,7 +254,7 @@ func TestHandler_getListById(t *testing.T) {
 			expectedResponseBody: `{"list":{"Id":1,"Title":"test","Description":"testing"}}`,
 		},
 		{
-			name:                 "invalid param",
+			name:                 "Invalid param",
 			inputUserId:          1,
 			inputParam:           "invalid",
 			mockBehavior:         func(s *mockService.MockTodoList, list model.TodoList, userId, listId interface{}) {},
@@ -251,7 +262,7 @@ func TestHandler_getListById(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid the param"}`,
 		},
 		{
-			name:                 "invalid user id",
+			name:                 "Invalid user id",
 			inputUserId:          "invalid",
 			inputParam:           1,
 			mockBehavior:         func(s *mockService.MockTodoList, list model.TodoList, userId, listId interface{}) {},
@@ -259,7 +270,7 @@ func TestHandler_getListById(t *testing.T) {
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
 			list:        model.TodoList{Id: 1, Title: "test", Description: "testing"},
@@ -323,7 +334,7 @@ func TestHandler_updateList(t *testing.T) {
 		expectedResponseBody string
 	}{
 		{
-			name:        "OK",
+			name:        "OK_AllFields",
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description": "testing"}`,
@@ -335,7 +346,31 @@ func TestHandler_updateList(t *testing.T) {
 			expectedResponseBody: `{"result":"the list update was successful"}`,
 		},
 		{
-			name:                 "invalid param",
+			name:        "OK_WithoutDescription",
+			inputUserId: 1,
+			inputParam:  1,
+			inputBody:   `{"title": "test"}`,
+			updateList:  model.TodoList{Title: "test"},
+			mockBehavior: func(s *mockService.MockTodoList, userId, listId interface{}, list model.TodoList) {
+				s.EXPECT().Update(userId, listId, list).Return(nil)
+			},
+			expectedStatusCode:   200,
+			expectedResponseBody: `{"result":"the list update was successful"}`,
+		},
+		{
+			name:        "OK_WithoutTitle",
+			inputUserId: 1,
+			inputParam:  1,
+			inputBody:   `{"description": "testing"}`,
+			updateList:  model.TodoList{Description: "testing"},
+			mockBehavior: func(s *mockService.MockTodoList, userId, listId interface{}, list model.TodoList) {
+				s.EXPECT().Update(userId, listId, list).Return(nil)
+			},
+			expectedStatusCode:   200,
+			expectedResponseBody: `{"result":"the list update was successful"}`,
+		},
+		{
+			name:                 "Invalid param",
 			inputUserId:          1,
 			inputParam:           "invalid",
 			mockBehavior:         func(s *mockService.MockTodoList, userId, listId interface{}, list model.TodoList) {},
@@ -343,7 +378,7 @@ func TestHandler_updateList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid the param"}`,
 		},
 		{
-			name:                 "empty fields",
+			name:                 "Empty fields",
 			inputUserId:          1,
 			inputParam:           1,
 			inputBody:            `{}`,
@@ -352,7 +387,7 @@ func TestHandler_updateList(t *testing.T) {
 			expectedResponseBody: `{"error":"update request has not values"}`,
 		},
 		{
-			name:                 "short title",
+			name:                 "Short title",
 			inputBody:            `{"title": "t"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -361,7 +396,7 @@ func TestHandler_updateList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "long title",
+			name:                 "Long title",
 			inputBody:            `{"title": "veryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitle"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -370,7 +405,7 @@ func TestHandler_updateList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "short description",
+			name:                 "Short description",
 			inputBody:            `{"title": "test", "description": "t"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -379,7 +414,7 @@ func TestHandler_updateList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "long description",
+			name:                 "Long description",
 			inputBody:            `{"title": "test", "description": "VeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLong"}`,
 			inputUserId:          1,
 			inputParam:           1,
@@ -388,7 +423,7 @@ func TestHandler_updateList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
 		{
-			name:                 "invalid user id",
+			name:                 "Invalid user id",
 			inputUserId:          "invalid",
 			inputParam:           1,
 			inputBody:            `{"title": "test", "description": "testing"}`,
@@ -397,7 +432,7 @@ func TestHandler_updateList(t *testing.T) {
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:        "service failure",
+			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description": "testing"}`,
@@ -480,7 +515,7 @@ func TestHandler_deleteList(t *testing.T) {
 			expectedResponseBody: `{"result":"the list deletion was successful"}`,
 		},
 		{
-			name:                 "invalid param",
+			name:                 "Invalid param",
 			inputUserId:          1,
 			inputParam:           "invalid",
 			mockBehavior:         func(s *mockService.MockTodoList, dbUsersLists map[int]int, userId, listId interface{}) {},
@@ -488,7 +523,7 @@ func TestHandler_deleteList(t *testing.T) {
 			expectedResponseBody: `{"error":"invalid the param"}`,
 		},
 		{
-			name:                 "invalid user id",
+			name:                 "Invalid user id",
 			inputUserId:          "invalid",
 			inputParam:           1,
 			mockBehavior:         func(s *mockService.MockTodoList, dbUsersLists map[int]int, userId, listId interface{}) {},
@@ -496,7 +531,7 @@ func TestHandler_deleteList(t *testing.T) {
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:         "service failure",
+			name:         "Service failure",
 			inputUserId:  1,
 			inputParam:   1,
 			dbUsersLists: map[int]int{1: 1},
