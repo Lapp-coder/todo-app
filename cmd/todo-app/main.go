@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/handler"
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/repository"
 	"github.com/Lapp-coder/todo-app/internal/app/todo-app/server"
@@ -16,22 +15,6 @@ import (
 	"syscall"
 )
 
-var (
-	configPath string
-)
-
-// Принятие пути к конфигурационному файлу через флаг при запуске приложения
-func init() {
-	flag.StringVar(&configPath, "c", "./config", "path to config file")
-}
-
-// Инициалзиация конфигурационного файла
-func initConfig() error {
-	viper.AddConfigPath(configPath)
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
-}
-
 // @title Todo app API
 // @version 1.0
 // @description API server for todo list application
@@ -43,11 +26,9 @@ func initConfig() error {
 // @in header
 // @name Authorization
 func main() {
-	flag.Parse()
-
 	// Завершение приложения при ошибке в инициализации конфигурационного файла
 	if err := initConfig(); err != nil {
-		logrus.Fatalf("error initializing config file: %s", err.Error())
+		logrus.Fatalf("error initializate a config file: %s", err.Error())
 	}
 
 	// Завершение приложения при ошибке в загрузке переменных окружения
@@ -56,7 +37,7 @@ func main() {
 	}
 
 	// Инициализация бд postgres и завершение приложения при ошибке в подключении к бд
-	db, err := repository.NewPostgresDB(repository.Config{
+	db, err := repository.NewPostgresDB(repository.ConfigConnect{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
@@ -90,7 +71,7 @@ func main() {
 
 	logrus.Print("TodoApp started")
 
-	// Ожидание на получение любого из двух сигналов от системы для продолжения выполнения функции main()
+	// Ожидание на получение любого из сигналов из двух сигналов (SIGTERM, SIGINT) от системы для продолжения выполнения функции main()
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
@@ -106,4 +87,11 @@ func main() {
 	if err = db.Close(); err != nil {
 		logrus.Errorf("error occurred when closing the connection to the database: %s", err.Error())
 	}
+}
+
+// Инициализация конфигурационного файла
+func initConfig() error {
+	viper.AddConfigPath("config/")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }

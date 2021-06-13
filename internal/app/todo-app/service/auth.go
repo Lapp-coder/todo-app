@@ -40,7 +40,7 @@ func (s AuthService) CreateUser(user model.User) (int, error) {
 }
 
 func (s AuthService) GenerateToken(email, password string) (string, error) {
-	user, err := s.repos.GetByEmail(email)
+	user, err := s.repos.GetUser(email)
 	if err != nil || !compareHashAndPassword(user.Password, password) {
 		return "", errors.New("incorrect email or password")
 	}

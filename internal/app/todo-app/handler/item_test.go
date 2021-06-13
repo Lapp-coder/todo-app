@@ -9,7 +9,7 @@ import (
 	mockService "github.com/Lapp-coder/todo-app/internal/app/todo-app/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"net/http/httptest"
 	"testing"
 )
@@ -150,8 +150,8 @@ func TestHandler_createItem(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
@@ -244,8 +244,8 @@ func TestHandler_getAllItems(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
@@ -339,8 +339,8 @@ func TestHandler_getItemById(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
@@ -477,8 +477,8 @@ func TestHandler_updateItem(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
@@ -564,8 +564,8 @@ func TestHandler_deleteItem(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }

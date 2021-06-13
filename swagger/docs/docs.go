@@ -114,7 +114,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/swagger.UpdateItemRequest"
+                            "$ref": "#/definitions/request.UpdateTodoItem"
                         }
                     }
                 ],
@@ -283,7 +283,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/swagger.CreateListRequest"
+                            "$ref": "#/definitions/request.CreateTodoList"
                         }
                     }
                 ],
@@ -411,7 +411,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/swagger.UpdateListRequest"
+                            "$ref": "#/definitions/request.UpdateTodoList"
                         }
                     }
                 ],
@@ -596,7 +596,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/swagger.CreateItemRequest"
+                            "$ref": "#/definitions/request.CreateTodoItem"
                         }
                     }
                 ],
@@ -655,7 +655,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/swagger.SignInRequest"
+                            "$ref": "#/definitions/request.SignIn"
                         }
                     }
                 ],
@@ -714,7 +714,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/swagger.SignUpRequest"
+                            "$ref": "#/definitions/request.SignUp"
                         }
                     }
                 ],
@@ -788,7 +788,24 @@ var doc = `{
                 }
             }
         },
-        "swagger.CreateItemRequest": {
+        "request.CreateTodoItem": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "done": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateTodoList": {
             "type": "object",
             "required": [
                 "title"
@@ -802,11 +819,56 @@ var doc = `{
                 }
             }
         },
-        "swagger.CreateListRequest": {
+        "request.SignIn": {
             "type": "object",
             "required": [
-                "title"
+                "email",
+                "password"
             ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.SignUp": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateTodoItem": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "done": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateTodoList": {
+            "type": "object",
             "properties": {
                 "description": {
                     "type": "string"
@@ -859,65 +921,6 @@ var doc = `{
             "properties": {
                 "list": {
                     "$ref": "#/definitions/model.TodoList"
-                }
-            }
-        },
-        "swagger.SignInRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "swagger.SignUpRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "name",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "swagger.UpdateItemRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "done": {
-                    "type": "boolean"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "swagger.UpdateListRequest": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
                 }
             }
         }

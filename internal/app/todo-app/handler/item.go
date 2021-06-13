@@ -18,7 +18,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "List id"
-// @Param input body swagger.CreateItemRequest true "Item info"
+// @Param input body request.CreateTodoItem true "Item info"
 // @Success 201 {integer} integer "Item id"
 // @Failure 400,404 {object} swagger.ErrorResponse
 // @Failure 500 {object} swagger.ErrorResponse
@@ -142,7 +142,7 @@ func (h Handler) getItemById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Item id"
-// @Param input body swagger.UpdateItemRequest true "Update values"
+// @Param input body request.UpdateTodoItem true "Update values"
 // @Success 200 {string} string "Result"
 // @Failure 400,404 {object} swagger.ErrorResponse
 // @Failure 500 {object} swagger.ErrorResponse
@@ -172,7 +172,7 @@ func (h Handler) updateItem(c *gin.Context) {
 		return
 	}
 
-	err = h.service.TodoItem.Update(userId, itemId, model.TodoItem{Title: *req.Title, Description: *req.Description, Done: *req.Done})
+	err = h.service.TodoItem.Update(userId, itemId, req)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return

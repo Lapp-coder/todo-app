@@ -15,7 +15,7 @@ import (
 // @ID create-account
 // @Accept json
 // @Produce json
-// @Param input body swagger.SignUpRequest true "Account info"
+// @Param input body request.SignUp true "Account info"
 // @Success 201 {integer} integer "User id"
 // @Failure 400 {object} swagger.ErrorResponse
 // @Failure 404 {object} swagger.ErrorResponse
@@ -52,7 +52,7 @@ func (h Handler) signUp(c *gin.Context) {
 // @ID login
 // @Accept json
 // @Produce json
-// @Param input body swagger.SignInRequest true "Credentials"
+// @Param input body request.SignIn true "Credentials"
 // @Success 201 {string} string "Token"
 // @Failure 400 {object} swagger.ErrorResponse
 // @Failure 404 {object} swagger.ErrorResponse

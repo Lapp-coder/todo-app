@@ -1,9 +1,9 @@
 .PHONY: build run migrate swag
 build:
-	go build cmd/todo-app/main.go
+	go build -o build/bin/start cmd/todo-app/main.go
 
 run:
-	./main
+	./build/bin/start
 
 migrate:
 	migrate -path ./schema/ -database "postgres://postgres:${POSTGRES_PASSWORD}@localhost:5432/todo-db?sslmode=disable" up

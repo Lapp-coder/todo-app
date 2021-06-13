@@ -27,7 +27,7 @@ func (r *AuthSQL) CreateUser(user model.User) (int, error) {
 	return user.Id, nil
 }
 
-func (r *AuthSQL) GetByEmail(email string) (model.User, error) {
+func (r *AuthSQL) GetUser(email string) (model.User, error) {
 	var user model.User
 
 	err := r.db.QueryRow(fmt.Sprintf(

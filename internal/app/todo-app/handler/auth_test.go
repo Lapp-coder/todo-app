@@ -8,7 +8,7 @@ import (
 	mockService "github.com/Lapp-coder/todo-app/internal/app/todo-app/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"net/http/httptest"
 	"testing"
 )
@@ -115,8 +115,8 @@ func TestHandler_signUp(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
@@ -130,7 +130,7 @@ func TestHandler_signIn(t *testing.T) {
 		inputBody            string
 		inputEmail           string
 		inputPassword        string
-		mockBehaviour        mockBehaviour
+		mockBehavior         mockBehaviour
 		expectedStatusCode   int
 		expectedResponseBody string
 	}{
@@ -139,16 +139,37 @@ func TestHandler_signIn(t *testing.T) {
 			inputBody:     `{"email": "test@mail.ru", "password": "testing"}`,
 			inputEmail:    "test@mail.ru",
 			inputPassword: "testing",
-			mockBehaviour: func(s *mockService.MockAuthorization, email, password string) {
+			mockBehavior: func(s *mockService.MockAuthorization, email, password string) {
 				s.EXPECT().GenerateToken(email, password).Return("generatedToken", nil)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: `{"token":"generatedToken"}`,
 		},
 		{
+			name:                 "invalid email",
+			inputBody:            `{"email":"test", "password":"testing"}`,
+			mockBehavior:         func(s *mockService.MockAuthorization, email, password string) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: `{"error":"invalid input body"}`,
+		},
+		{
+			name:                 "short password",
+			inputBody:            `{"email":"test@mail.ru", "password":"test"}`,
+			mockBehavior:         func(s *mockService.MockAuthorization, email, password string) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: `{"error":"invalid input body"}`,
+		},
+		{
+			name:                 "very long password",
+			inputBody:            `{"name": "Test", "email":"test@mail.ru", "password":"testAndTestAndTestAndTestAndTestAndTestAndTestAndTestAndTest"}`,
+			mockBehavior:         func(s *mockService.MockAuthorization, email, password string) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: `{"error":"invalid input body"}`,
+		},
+		{
 			name:                 "empty fields",
 			inputBody:            `{}`,
-			mockBehaviour:        func(s *mockService.MockAuthorization, email, password string) {},
+			mockBehavior:         func(s *mockService.MockAuthorization, email, password string) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
@@ -157,7 +178,7 @@ func TestHandler_signIn(t *testing.T) {
 			inputBody:     `{"email": "test@mail.ru", "password": "testing"}`,
 			inputEmail:    "test@mail.ru",
 			inputPassword: "testing",
-			mockBehaviour: func(s *mockService.MockAuthorization, email, password string) {
+			mockBehavior: func(s *mockService.MockAuthorization, email, password string) {
 				s.EXPECT().GenerateToken(email, password).Return("", errors.New("incorrect email or password"))
 			},
 			expectedStatusCode:   500,
@@ -173,7 +194,7 @@ func TestHandler_signIn(t *testing.T) {
 			defer c.Finish()
 
 			auth := mockService.NewMockAuthorization(c)
-			tc.mockBehaviour(auth, tc.inputEmail, tc.inputPassword)
+			tc.mockBehavior(auth, tc.inputEmail, tc.inputPassword)
 
 			services := &service.Service{Authorization: auth}
 			handler := NewHandler(services)
@@ -191,8 +212,8 @@ func TestHandler_signIn(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }

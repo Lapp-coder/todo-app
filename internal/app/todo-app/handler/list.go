@@ -17,7 +17,7 @@ import (
 // @ID create-list
 // @Accept json
 // @Produce json
-// @Param input body swagger.CreateListRequest true "List info"
+// @Param input body request.CreateTodoList true "List info"
 // @Success 201 {integer} integer "List id"
 // @Failure 400,404 {object} swagger.ErrorResponse
 // @Failure 500 {object} swagger.ErrorResponse
@@ -128,7 +128,7 @@ func (h Handler) getListById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "List id"
-// @Param input body swagger.UpdateListRequest true "Update values"
+// @Param input body request.UpdateTodoList true "Update values"
 // @Success 200 {string} string "Result"
 // @Failure 400,404 {object} swagger.ErrorResponse
 // @Failure 500 {object} swagger.ErrorResponse
@@ -158,7 +158,7 @@ func (h Handler) updateList(c *gin.Context) {
 		return
 	}
 
-	err = h.service.TodoList.Update(userId, listId, model.TodoList{Title: *req.Title, Description: *req.Description})
+	err = h.service.TodoList.Update(userId, listId, req)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return

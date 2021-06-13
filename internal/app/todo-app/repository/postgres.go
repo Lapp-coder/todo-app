@@ -12,7 +12,7 @@ const (
 	usersListTable string = "users_lists"
 )
 
-type Config struct {
+type ConfigConnect struct {
 	Host     string
 	Port     string
 	Username string
@@ -21,7 +21,7 @@ type Config struct {
 	SSLMode  string
 }
 
-func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
+func NewPostgresDB(cfg ConfigConnect) (*sqlx.DB, error) {
 	db, err := sqlx.Connect("postgres", fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Host, cfg.Port, cfg.Username, cfg.Password, cfg.DBName, cfg.SSLMode))

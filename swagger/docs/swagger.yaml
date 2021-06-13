@@ -22,7 +22,18 @@ definitions:
       title:
         type: string
     type: object
-  swagger.CreateItemRequest:
+  request.CreateTodoItem:
+    properties:
+      description:
+        type: string
+      done:
+        type: boolean
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  request.CreateTodoList:
     properties:
       description:
         type: string
@@ -31,14 +42,44 @@ definitions:
     required:
     - title
     type: object
-  swagger.CreateListRequest:
+  request.SignIn:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.SignUp:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  request.UpdateTodoItem:
+    properties:
+      description:
+        type: string
+      done:
+        type: boolean
+      title:
+        type: string
+    type: object
+  request.UpdateTodoList:
     properties:
       description:
         type: string
       title:
         type: string
-    required:
-    - title
     type: object
   swagger.ErrorResponse:
     properties:
@@ -68,45 +109,6 @@ definitions:
     properties:
       list:
         $ref: '#/definitions/model.TodoList'
-    type: object
-  swagger.SignInRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  swagger.SignUpRequest:
-    properties:
-      email:
-        type: string
-      name:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - name
-    - password
-    type: object
-  swagger.UpdateItemRequest:
-    properties:
-      description:
-        type: string
-      done:
-        type: boolean
-      title:
-        type: string
-    type: object
-  swagger.UpdateListRequest:
-    properties:
-      description:
-        type: string
-      title:
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -206,7 +208,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/swagger.UpdateItemRequest'
+          $ref: '#/definitions/request.UpdateTodoItem'
       produces:
       - application/json
       responses:
@@ -278,7 +280,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/swagger.CreateListRequest'
+          $ref: '#/definitions/request.CreateTodoList'
       produces:
       - application/json
       responses:
@@ -398,7 +400,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/swagger.UpdateListRequest'
+          $ref: '#/definitions/request.UpdateTodoList'
       produces:
       - application/json
       responses:
@@ -481,7 +483,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/swagger.CreateItemRequest'
+          $ref: '#/definitions/request.CreateTodoItem'
       produces:
       - application/json
       responses:
@@ -522,7 +524,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/swagger.SignInRequest'
+          $ref: '#/definitions/request.SignIn'
       produces:
       - application/json
       responses:
@@ -561,7 +563,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/swagger.SignUpRequest'
+          $ref: '#/definitions/request.SignUp'
       produces:
       - application/json
       responses:

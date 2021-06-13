@@ -12,7 +12,7 @@ import (
 	mockService "github.com/Lapp-coder/todo-app/internal/app/todo-app/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHandler_createList(t *testing.T) {
@@ -123,8 +123,8 @@ func TestHandler_createList(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
@@ -212,8 +212,8 @@ func TestHandler_getAllLists(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
@@ -302,8 +302,8 @@ func TestHandler_getListById(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
@@ -444,8 +444,8 @@ func TestHandler_updateList(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
@@ -496,21 +496,6 @@ func TestHandler_deleteList(t *testing.T) {
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
 		{
-			name:        "isn't in db",
-			inputUserId: 1,
-			inputParam:  1,
-			mockBehavior: func(s *mockService.MockTodoList, dbUsersLists map[int]int, userId, listId interface{}) {
-				if dbUsersLists[userId.(int)] == listId {
-					s.EXPECT().Delete(userId, listId).Return(nil)
-					return
-				}
-
-				s.EXPECT().Delete(userId, listId).Return(errors.New("failed to delete list"))
-			},
-			expectedStatusCode:   500,
-			expectedResponseBody: `{"error":"failed to delete list"}`,
-		},
-		{
 			name:         "service failure",
 			inputUserId:  1,
 			inputParam:   1,
@@ -559,8 +544,8 @@ func TestHandler_deleteList(t *testing.T) {
 			r.ServeHTTP(w, req)
 
 			// Assert
-			assert.Equal(t, w.Code, tc.expectedStatusCode)
-			assert.Equal(t, w.Body.String(), tc.expectedResponseBody)
+			assert.Equal(t, tc.expectedStatusCode, w.Code)
+			assert.Equal(t, tc.expectedResponseBody, w.Body.String())
 		})
 	}
 }
