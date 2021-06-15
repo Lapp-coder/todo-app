@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/model"
 	"github.com/jmoiron/sqlx"
 )
 

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/repository"
+	"github.com/Lapp-coder/todo-app/internal/app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/repository"
 )
 
 //go:generate mockgen -source=service.go --destination=mocks/mock.go

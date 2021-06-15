@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/request"
+	"github.com/Lapp-coder/todo-app/internal/app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/request"
 	"github.com/gin-gonic/gin"
 )
 

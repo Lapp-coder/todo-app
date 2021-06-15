@@ -3,3 +3,6 @@
 
 # Secrets
 .env
+
+# Binary
+build/bin/start

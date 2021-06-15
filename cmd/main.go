@@ -2,17 +2,18 @@ package main
 
 import (
 	"context"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/handler"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/repository"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/server"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/service"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/Lapp-coder/todo-app/internal/app/handler"
+	"github.com/Lapp-coder/todo-app/internal/app/repository"
+	"github.com/Lapp-coder/todo-app/internal/app/server"
+	"github.com/Lapp-coder/todo-app/internal/app/service"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 // @title Todo app API
@@ -91,7 +92,7 @@ func main() {
 
 // Инициализация конфигурационного файла
 func initConfig() error {
-	viper.AddConfigPath("config/")
+	viper.AddConfigPath("configs/")
 	viper.SetConfigName("config")
 	return viper.ReadInConfig()
 }

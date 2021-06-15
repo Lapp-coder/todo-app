@@ -2,7 +2,7 @@ package request
 
 import (
 	"errors"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/model"
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 

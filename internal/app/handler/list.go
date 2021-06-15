@@ -2,77 +2,100 @@ package handler
 
 import (
 	"errors"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/request"
+	"github.com/Lapp-coder/todo-app/internal/app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/request"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-// createItem godoc
-// @Summary Create item
+// createList godoc
+// @Summary Create list
 // @Security ApiKeyAuth
-// @Tags items
-// @Description create item
-// @ID create-item
+// @Tags lists
+// @Description create list
+// @ID create-list
 // @Accept json
 // @Produce json
-// @Param id path int true "List id"
-// @Param input body request.CreateTodoItem true "Item info"
-// @Success 201 {integer} integer "Item id"
+// @Param input body request.CreateTodoList true "List info"
+// @Success 201 {integer} integer "List id"
 // @Failure 400,404 {object} swagger.ErrorResponse
 // @Failure 500 {object} swagger.ErrorResponse
 // @Failure default {object} swagger.ErrorResponse
-// @Router /api/lists/{id}/items/ [post]
-func (h Handler) createItem(c *gin.Context) {
+// @Router /api/lists/ [post]
+func (h Handler) createList(c *gin.Context) {
 	userId := h.getUserId(c)
 	if userId == 0 {
 		respondError(c, http.StatusInternalServerError, errors.New("failed to get user id"))
 		return
 	}
 
-	listId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		respondError(c, http.StatusBadRequest, errors.New("invalid the param"))
-		return
-	}
-
-	var req request.CreateTodoItem
-	if err = c.BindJSON(&req); err != nil {
+	var req request.CreateTodoList
+	if err := c.BindJSON(&req); err != nil {
 		respondError(c, http.StatusBadRequest, errors.New("invalid input body"))
 		return
 	}
 
-	if err = req.Validate(); err != nil {
+	if err := req.Validate(); err != nil {
 		respondError(c, http.StatusBadRequest, errors.New("invalid input body"))
 		return
 	}
 
-	itemId, err := h.service.TodoItem.Create(userId, listId, model.TodoItem{Title: req.Title, Description: req.Description, Done: req.Done})
+	listId, err := h.service.TodoList.Create(userId, model.TodoList{Title: req.Title, Description: req.Description})
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	respond(c, http.StatusCreated, gin.H{
-		"item id": itemId,
+		"list id": listId,
 	})
 }
 
-// getAllItems godoc
-// @Summary Get all items
+// getAllLists godoc
+// @Summary Get all lists
 // @Security ApiKeyAuth
-// @Tags items
-// @Description get all items
-// @ID get-all-items
+// @Tags lists
+// @Description get all lists
+// @ID get-all-lists
 // @Produce json
-// @Param id path int true "List id"
-// @Success 200 {object} swagger.GetAllItemsResponse
+// @Success 200 {object} swagger.GetAllListsResponse
 // @Failure 400,404 {object} swagger.ErrorResponse
 // @Failure 500 {object} swagger.ErrorResponse
 // @Failure default {object} swagger.ErrorResponse
-// @Router /api/lists/{id}/items/ [get]
-func (h Handler) getAllItems(c *gin.Context) {
+// @Router /api/lists/ [get]
+func (h Handler) getAllLists(c *gin.Context) {
+	userId := h.getUserId(c)
+	if userId == 0 {
+		respondError(c, http.StatusInternalServerError, errors.New("failed to get user id"))
+		return
+	}
+
+	lists, err := h.service.TodoList.GetAll(userId)
+	if err != nil {
+		respondError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	respond(c, http.StatusOK, gin.H{
+		"lists": lists,
+	})
+}
+
+// getListById godoc
+// @Summary Get list by id
+// @Security ApiKeyAuth
+// @Tags lists
+// @Description get list by id
+// @ID get-list-by-id
+// @Produce json
+// @Param id path int true "List id"
+// @Success 200 {object} swagger.GetListByIdResponse
+// @Failure 400,404 {object} swagger.ErrorResponse
+// @Failure 500 {object} swagger.ErrorResponse
+// @Failure default {object} swagger.ErrorResponse
+// @Router /api/lists/{id} [get]
+func (h Handler) getListById(c *gin.Context) {
 	userId := h.getUserId(c)
 	if userId == 0 {
 		respondError(c, http.StatusInternalServerError, errors.New("failed to get user id"))
@@ -85,137 +108,100 @@ func (h Handler) getAllItems(c *gin.Context) {
 		return
 	}
 
-	items, err := h.service.TodoItem.GetAll(userId, listId)
+	list, err := h.service.TodoList.GetById(userId, listId)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	respond(c, http.StatusOK, gin.H{
-		"items": items,
+		"list": list,
 	})
 }
 
-// getItemById godoc
-// @Summary Get item by id
+// updateList godoc
+// @Summary Update list
 // @Security ApiKeyAuth
-// @Tags items
-// @Description get item by id
-// @ID get-item-by-id
-// @Produce json
-// @Param id path int true "Item id"
-// @Success 200 {object} swagger.GetItemByIdResponse
-// @Failure 400,404 {object} swagger.ErrorResponse
-// @Failure 500 {object} swagger.ErrorResponse
-// @Failure default {object} swagger.ErrorResponse
-// @Router /api/items/{id} [get]
-func (h Handler) getItemById(c *gin.Context) {
-	userId := h.getUserId(c)
-	if userId == 0 {
-		respondError(c, http.StatusInternalServerError, errors.New("failed to get user id"))
-		return
-	}
-
-	itemId, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		respondError(c, http.StatusBadRequest, errors.New("invalid the param"))
-		return
-	}
-
-	item, err := h.service.TodoItem.GetById(userId, itemId)
-	if err != nil {
-		respondError(c, http.StatusInternalServerError, err)
-		return
-	}
-
-	respond(c, http.StatusOK, gin.H{
-		"item": item,
-	})
-}
-
-// updateItem godoc
-// @Summary Update item
-// @Security ApiKeyAuth
-// @Tags items
-// @Description update item by id
-// @ID update-item
+// @Tags lists
+// @Description update list by id
+// @ID update-list
 // @Accept json
 // @Produce json
-// @Param id path int true "Item id"
-// @Param input body request.UpdateTodoItem true "Update values"
+// @Param id path int true "List id"
+// @Param input body request.UpdateTodoList true "Update values"
 // @Success 200 {string} string "Result"
 // @Failure 400,404 {object} swagger.ErrorResponse
 // @Failure 500 {object} swagger.ErrorResponse
 // @Failure default {object} swagger.ErrorResponse
-// @Router /api/items/{id} [put]
-func (h Handler) updateItem(c *gin.Context) {
+// @Router /api/lists/{id} [put]
+func (h Handler) updateList(c *gin.Context) {
 	userId := h.getUserId(c)
 	if userId == 0 {
 		respondError(c, http.StatusInternalServerError, errors.New("failed to get user id"))
 		return
 	}
 
-	itemId, err := strconv.Atoi(c.Param("id"))
+	listId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		respondError(c, http.StatusBadRequest, errors.New("invalid the param"))
 		return
 	}
 
-	var req request.UpdateTodoItem
+	var req request.UpdateTodoList
 	if err = c.BindJSON(&req); err != nil {
 		respondError(c, http.StatusBadRequest, errors.New("invalid input body"))
 		return
 	}
 
-	item, err := req.Validate()
+	list, err := req.Validate()
 	if err != nil {
 		respondError(c, http.StatusBadRequest, err)
 		return
 	}
 
-	err = h.service.TodoItem.Update(userId, itemId, item)
+	err = h.service.TodoList.Update(userId, listId, list)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	respond(c, http.StatusOK, gin.H{
-		"result": "the item update was successful",
+		"result": "the list update was successful",
 	})
 }
 
-// deleteItem godoc
-// @Summary Delete item
+// deleteList godoc
+// @Summary Delete list
 // @Security ApiKeyAuth
-// @Tags items
-// @Description delete item by id
-// @ID delete-item
+// @Tags lists
+// @Description delete list by id
+// @ID delete-list
 // @Produce json
-// @Param id path int true "Item id"
+// @Param id path int true "List id"
 // @Success 200 {string} string "Result"
 // @Failure 400,404 {object} swagger.ErrorResponse
 // @Failure 500 {object} swagger.ErrorResponse
 // @Failure default {object} swagger.ErrorResponse
-// @Router /api/items/{id} [delete]
-func (h Handler) deleteItem(c *gin.Context) {
+// @Router /api/lists/{id} [delete]
+func (h Handler) deleteList(c *gin.Context) {
 	userId := h.getUserId(c)
 	if userId == 0 {
 		respondError(c, http.StatusInternalServerError, errors.New("failed to get user id"))
 		return
 	}
 
-	itemId, err := strconv.Atoi(c.Param("id"))
+	listId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		respondError(c, http.StatusBadRequest, errors.New("invalid the param"))
 		return
 	}
 
-	if err = h.service.TodoItem.Delete(userId, itemId); err != nil {
+	if err = h.service.TodoList.Delete(userId, listId); err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	respond(c, http.StatusOK, gin.H{
-		"result": "the item deletion was successful",
+		"result": "the list deletion was successful",
 	})
 }

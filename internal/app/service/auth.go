@@ -2,12 +2,13 @@ package service
 
 import (
 	"errors"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/repository"
-	"github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/bcrypt"
 	"os"
 	"time"
+
+	"github.com/Lapp-coder/todo-app/internal/app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/repository"
+	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -21,16 +22,6 @@ type AuthService struct {
 
 func NewAuthService(repos repository.Authorization) *AuthService {
 	return &AuthService{repos: repos}
-}
-
-func generateHashPassword(password string) string {
-	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
-
-	return string(passwordHash)
-}
-
-func compareHashAndPassword(passwordHash, password string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) == nil
 }
 
 func (s AuthService) CreateUser(user model.User) (int, error) {
@@ -84,4 +75,14 @@ func (s AuthService) ParseToken(accessToken string) (int, error) {
 	}
 
 	return claims.UserId, nil
+}
+
+func generateHashPassword(password string) string {
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+
+	return string(passwordHash)
+}
+
+func compareHashAndPassword(passwordHash, password string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)) == nil
 }

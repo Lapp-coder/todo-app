@@ -3,14 +3,15 @@ package handler
 import (
 	"bytes"
 	"errors"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/service"
-	mockService "github.com/Lapp-coder/todo-app/internal/app/todo-app/service/mocks"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/Lapp-coder/todo-app/internal/app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/service"
+	mockService "github.com/Lapp-coder/todo-app/internal/app/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestHandler_signUp(t *testing.T) {

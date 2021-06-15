@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/service"
+	"github.com/Lapp-coder/todo-app/internal/app/service"
 	_ "github.com/Lapp-coder/todo-app/swagger/docs"
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/files"

@@ -1,6 +1,6 @@
 package swagger
 
-import "github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
+import "github.com/Lapp-coder/todo-app/internal/app/model"
 
 type ErrorResponse struct {
 	Error string `json:"error"`

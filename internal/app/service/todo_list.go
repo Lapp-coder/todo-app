@@ -2,8 +2,8 @@ package service
 
 import (
 	"errors"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/model"
-	"github.com/Lapp-coder/todo-app/internal/app/todo-app/repository"
+	"github.com/Lapp-coder/todo-app/internal/app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/repository"
 )
 
 type TodoListService struct {
