@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	usersTable     string = "users"
-	todoListsTable string = "todo_lists"
-	todoItemsTable string = "todo_items"
-	usersListTable string = "users_lists"
+	usersTable      string = "users"
+	todoListsTable  string = "todo_lists"
+	todoItemsTable  string = "todo_items"
+	usersListsTable string = "users_lists"
 )
 
 type ConfigConnect struct {

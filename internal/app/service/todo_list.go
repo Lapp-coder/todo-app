@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/Lapp-coder/todo-app/internal/app/model"
 	"github.com/Lapp-coder/todo-app/internal/app/repository"
+	"github.com/Lapp-coder/todo-app/internal/app/request"
 )
 
 type TodoListService struct {
@@ -33,7 +34,7 @@ func (s TodoListService) GetById(userId, listId int) (model.TodoList, error) {
 	return s.repos.GetById(userId, listId)
 }
 
-func (s TodoListService) Update(userId, listId int, list model.TodoList) error {
+func (s TodoListService) Update(userId, listId int, update request.UpdateTodoList) error {
 	if cacheList[userId] != listId {
 		if _, err := s.GetById(userId, listId); err != nil {
 			return errors.New("failed to update list")
@@ -42,7 +43,7 @@ func (s TodoListService) Update(userId, listId int, list model.TodoList) error {
 		cacheList[userId] = listId
 	}
 
-	return s.repos.Update(listId, list)
+	return s.repos.Update(listId, update)
 }
 
 func (s TodoListService) Delete(userId, listId int) error {

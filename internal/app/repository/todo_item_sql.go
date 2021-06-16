@@ -22,7 +22,7 @@ func (r *TodoItemSQL) Create(listId int, item model.TodoItem) (int, error) {
 		"INSERT INTO %s (list_id, title, description) VALUES ($1, $2, $3) RETURNING id", todoItemsTable),
 		listId, item.Title, item.Description).Scan(&item.Id)
 	if err != nil {
-		return 0, errors.New("error occurred when creating item")
+		return 0, errors.New("an error occurred when creating item")
 	}
 
 	return item.Id, nil
@@ -35,7 +35,7 @@ func (r *TodoItemSQL) GetAll(listId int) ([]model.TodoItem, error) {
 		`SELECT ti.id, ti.list_id, ti.title, ti.description, ti.done FROM %s ti 
 				INNER JOIN %s tl ON tl.id = ti.list_id WHERE tl.id = $1`, todoItemsTable, todoListsTable), listId)
 	if err != nil {
-		return nil, errors.New("error occurred when getting all items")
+		return nil, errors.New("an error occurred when getting all items")
 	}
 
 	return items, nil
@@ -46,7 +46,7 @@ func (r *TodoItemSQL) GetById(userId, itemId int) (model.TodoItem, error) {
 
 	err := r.db.Get(&item, fmt.Sprintf(
 		`SELECT ti.id, ti.list_id, ti.title, ti.description, ti.done FROM %s ti
-				INNER JOIN %s ul ON ul.list_id = ti.list_id WHERE ul.user_id = $1 AND ti.id = $2`, todoItemsTable, usersListTable),
+				INNER JOIN %s ul ON ul.list_id = ti.list_id WHERE ul.user_id = $1 AND ti.id = $2`, todoItemsTable, usersListsTable),
 		userId, itemId)
 	if err != nil {
 		return item, errors.New("failed to get the item")
@@ -85,7 +85,7 @@ func (r *TodoItemSQL) Update(itemId int, item model.TodoItem) error {
 		todoItemsTable, strings.Join(setValues, ", "), placeHolderId),
 		args...)
 	if err != nil {
-		return errors.New("error occurred when item the item")
+		return errors.New("an error occurred when item the item")
 	}
 
 	return nil
@@ -93,7 +93,7 @@ func (r *TodoItemSQL) Update(itemId int, item model.TodoItem) error {
 
 func (r *TodoItemSQL) Delete(itemId int) error {
 	if _, err := r.db.Exec(fmt.Sprintf("DELETE FROM %s ti WHERE ti.id = $1", todoItemsTable), itemId); err != nil {
-		return errors.New("error occurred when delete the item")
+		return errors.New("an error occurred when delete the item")
 	}
 
 	return nil

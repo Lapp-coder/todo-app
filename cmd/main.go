@@ -29,12 +29,12 @@ import (
 func main() {
 	// Завершение приложения при ошибке в инициализации конфигурационного файла
 	if err := initConfig(); err != nil {
-		logrus.Fatalf("error initializate a config file: %s", err.Error())
+		logrus.Fatalf("an error initializate a config file: %s", err.Error())
 	}
 
 	// Завершение приложения при ошибке в загрузке переменных окружения
 	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("error loading env variables: %s", err.Error())
+		logrus.Fatalf("an error loading env variables: %s", err.Error())
 	}
 
 	// Инициализация бд postgres и завершение приложения при ошибке в подключении к бд
@@ -66,7 +66,7 @@ func main() {
 	// Запуск сервера в go-рутине (для плавной остановки сервера)
 	go func() {
 		if err = srv.Run(); err != nil {
-			logrus.Errorf("error occurred while starting the server: %s", err.Error())
+			logrus.Errorf("an error occurred while starting the server: %s", err.Error())
 		}
 	}()
 
@@ -81,12 +81,12 @@ func main() {
 
 	// Плавная остановка сервера
 	if err = srv.Shutdown(context.Background()); err != nil {
-		logrus.Errorf("error occurred on server shutting down: %s", err.Error())
+		logrus.Errorf("an error occurred on server shutting down: %s", err.Error())
 	}
 
 	// Закрытие соединения с базой данных
 	if err = db.Close(); err != nil {
-		logrus.Errorf("error occurred when closing the connection to the database: %s", err.Error())
+		logrus.Errorf("an error occurred when closing the connection to the database: %s", err.Error())
 	}
 }
 

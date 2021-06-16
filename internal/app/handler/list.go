@@ -153,13 +153,12 @@ func (h Handler) updateList(c *gin.Context) {
 		return
 	}
 
-	list, err := req.Validate()
-	if err != nil {
+	if err := req.Validate(); err != nil {
 		respondError(c, http.StatusBadRequest, err)
 		return
 	}
 
-	err = h.service.TodoList.Update(userId, listId, list)
+	err = h.service.TodoList.Update(userId, listId, req)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return
