@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	model "github.com/Lapp-coder/todo-app/internal/app/model"
+	request "github.com/Lapp-coder/todo-app/internal/app/request"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -162,17 +163,17 @@ func (mr *MockTodoListMockRecorder) GetById(userId, listId interface{}) *gomock.
 }
 
 // Update mocks base method.
-func (m *MockTodoList) Update(userId, listId int, list model.TodoList) error {
+func (m *MockTodoList) Update(userId, listId int, update request.UpdateTodoList) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", userId, listId, list)
+	ret := m.ctrl.Call(m, "Update", userId, listId, update)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockTodoListMockRecorder) Update(userId, listId, list interface{}) *gomock.Call {
+func (mr *MockTodoListMockRecorder) Update(userId, listId, update interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTodoList)(nil).Update), userId, listId, list)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTodoList)(nil).Update), userId, listId, update)
 }
 
 // MockTodoItem is a mock of TodoItem interface.
