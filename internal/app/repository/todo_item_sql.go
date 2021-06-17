@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Lapp-coder/todo-app/internal/app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/request"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -33,7 +34,7 @@ func (r *TodoItemSQL) GetAll(listId int) ([]model.TodoItem, error) {
 
 	err := r.db.Select(&items, fmt.Sprintf(
 		`SELECT ti.id, ti.list_id, ti.title, ti.description, ti.done FROM %s ti 
-				INNER JOIN %s tl ON tl.id = ti.list_id WHERE tl.id = $1`, todoItemsTable, todoListsTable), listId)
+			WHERE ti.list_id = $1`, todoItemsTable), listId)
 	if err != nil {
 		return nil, errors.New("an error occurred when getting all items")
 	}
@@ -55,26 +56,26 @@ func (r *TodoItemSQL) GetById(userId, itemId int) (model.TodoItem, error) {
 	return item, nil
 }
 
-func (r *TodoItemSQL) Update(itemId int, item model.TodoItem) error {
+func (r *TodoItemSQL) Update(itemId int, update request.UpdateTodoItem) error {
 	setValues := make([]string, 0)
 	args := make([]interface{}, 0)
 	placeHolderId := 1
 
-	if &item.Title != nil {
+	if update.Title != nil {
 		setValues = append(setValues, fmt.Sprintf("title=$%d", placeHolderId))
-		args = append(args, item.Title)
+		args = append(args, *update.Title)
 		placeHolderId++
 	}
 
-	if &item.Description != nil {
+	if update.Description != nil {
 		setValues = append(setValues, fmt.Sprintf("description=$%d", placeHolderId))
-		args = append(args, item.Description)
+		args = append(args, *update.Description)
 		placeHolderId++
 	}
 
-	if &item.Done != nil {
+	if update.Done != nil {
 		setValues = append(setValues, fmt.Sprintf("done=$%d", placeHolderId))
-		args = append(args, item.Done)
+		args = append(args, *update.Done)
 		placeHolderId++
 	}
 

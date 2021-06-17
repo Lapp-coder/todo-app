@@ -1,4 +1,4 @@
-# REST API for todo list application ```v1.0.0```
+# REST API for todo list application ```v1.1.0```
 
 ***
 
@@ -20,3 +20,7 @@ SIGNING_KEY=YourSigningKey
 ### Use the following to create documentation:
 ```make swag```
 ### Documentation can be found at: http://localhost:8080/swagger/index.html
+
+### You can also run the tests with the following command:
+```make test```
+

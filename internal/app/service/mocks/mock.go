@@ -259,15 +259,15 @@ func (mr *MockTodoItemMockRecorder) GetById(userId, itemId interface{}) *gomock.
 }
 
 // Update mocks base method.
-func (m *MockTodoItem) Update(userId, itemId int, item model.TodoItem) error {
+func (m *MockTodoItem) Update(userId, itemId int, update request.UpdateTodoItem) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", userId, itemId, item)
+	ret := m.ctrl.Call(m, "Update", userId, itemId, update)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockTodoItemMockRecorder) Update(userId, itemId, item interface{}) *gomock.Call {
+func (mr *MockTodoItemMockRecorder) Update(userId, itemId, update interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTodoItem)(nil).Update), userId, itemId, item)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTodoItem)(nil).Update), userId, itemId, update)
 }

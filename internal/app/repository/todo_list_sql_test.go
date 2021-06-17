@@ -2,9 +2,10 @@ package repository
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/Lapp-coder/todo-app/internal/app/request"
 	"github.com/Lapp-coder/todo-app/test"
-	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Lapp-coder/todo-app/internal/app/model"
@@ -37,10 +38,32 @@ func TestTodoListSQL_Create(t *testing.T) {
 		wantErr        bool
 	}{
 		{
-			name: "OK",
+			name: "OK_AllFields",
 			input: args{
 				userId: 1,
 				list:   model.TodoList{Title: "test", Description: "testing"},
+			},
+			mockBehavior: func(input args) {
+				rows := mock.NewRows([]string{"id"}).AddRow(1)
+
+				mock.ExpectBegin()
+
+				query1 := fmt.Sprintf("INSERT INTO %s", todoListsTable)
+				mock.ExpectQuery(query1).WithArgs(input.list.Title, input.list.Description).WillReturnRows(rows)
+
+				query2 := fmt.Sprintf("INSERT INTO %s", usersListsTable)
+				mock.ExpectExec(query2).WithArgs(input.userId, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+
+				mock.ExpectCommit()
+			},
+			expectedListId: 1,
+			wantErr:        false,
+		},
+		{
+			name: "OK_WithoutDescription",
+			input: args{
+				userId: 1,
+				list:   model.TodoList{Title: "test"},
 			},
 			mockBehavior: func(input args) {
 				rows := mock.NewRows([]string{"id"}).AddRow(1)

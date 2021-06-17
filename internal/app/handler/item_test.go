@@ -8,8 +8,10 @@ import (
 	"testing"
 
 	"github.com/Lapp-coder/todo-app/internal/app/model"
+	"github.com/Lapp-coder/todo-app/internal/app/request"
 	"github.com/Lapp-coder/todo-app/internal/app/service"
 	mockService "github.com/Lapp-coder/todo-app/internal/app/service/mocks"
+	"github.com/Lapp-coder/todo-app/test"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -372,14 +374,14 @@ func TestHandler_getItemById(t *testing.T) {
 
 func TestHandler_updateItem(t *testing.T) {
 	// Assert
-	type mockBehavior func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem)
+	type mockBehavior func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem)
 
 	testTable := []struct {
 		name                 string
 		inputUserId          interface{}
 		inputParam           interface{}
 		inputBody            string
-		item                 model.TodoItem
+		update               request.UpdateTodoItem
 		mockBehavior         mockBehavior
 		expectedStatusCode   int
 		expectedResponseBody string
@@ -389,9 +391,13 @@ func TestHandler_updateItem(t *testing.T) {
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description": "testing", "done": true}`,
-			item:        model.TodoItem{Title: "test", Description: "testing", Done: true},
-			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
-				s.EXPECT().Update(userId, itemId, item).Return(nil)
+			update: request.UpdateTodoItem{
+				Title:       test.StringPointer("test"),
+				Description: test.StringPointer("testing"),
+				Done:        test.BoolPointer(true),
+			},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
+				s.EXPECT().Update(userId, itemId, update).Return(nil)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: `{"result":"the item update was successful"}`,
@@ -401,33 +407,40 @@ func TestHandler_updateItem(t *testing.T) {
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description": "testing"}`,
-			item:        model.TodoItem{Title: "test", Description: "testing"},
-			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
-				s.EXPECT().Update(userId, itemId, item).Return(nil)
+			update: request.UpdateTodoItem{
+				Title:       test.StringPointer("test"),
+				Description: test.StringPointer("testing"),
+			},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
+				s.EXPECT().Update(userId, itemId, update).Return(nil)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: `{"result":"the item update was successful"}`,
 		},
 		{
-			name:        "OK_WithoutDescription",
+			name:        "OK_WithoutDescriptionAndDone",
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test"}`,
-			item:        model.TodoItem{Title: "test"},
-			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
-				s.EXPECT().Update(userId, itemId, item).Return(nil)
+			update: request.UpdateTodoItem{
+				Title: test.StringPointer("test"),
+			},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
+				s.EXPECT().Update(userId, itemId, update).Return(nil)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: `{"result":"the item update was successful"}`,
 		},
 		{
-			name:        "OK_WithDone",
+			name:        "OK_WithoutTitleAndDescription",
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"done": true}`,
-			item:        model.TodoItem{Done: true},
-			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
-				s.EXPECT().Update(userId, itemId, item).Return(nil)
+			update: request.UpdateTodoItem{
+				Done: test.BoolPointer(true),
+			},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
+				s.EXPECT().Update(userId, itemId, update).Return(nil)
 			},
 			expectedStatusCode:   200,
 			expectedResponseBody: `{"result":"the item update was successful"}`,
@@ -436,7 +449,7 @@ func TestHandler_updateItem(t *testing.T) {
 			name:                 "Invalid param",
 			inputUserId:          1,
 			inputParam:           "invalid",
-			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {},
+			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"error":"invalid the param"}`,
 		},
@@ -445,7 +458,7 @@ func TestHandler_updateItem(t *testing.T) {
 			inputUserId:          1,
 			inputParam:           1,
 			inputBody:            `{}`,
-			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {},
+			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"error":"update request has not values"}`,
 		},
@@ -454,7 +467,7 @@ func TestHandler_updateItem(t *testing.T) {
 			inputBody:            `{"title": "t"}`,
 			inputUserId:          1,
 			inputParam:           1,
-			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {},
+			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
@@ -463,7 +476,7 @@ func TestHandler_updateItem(t *testing.T) {
 			inputBody:            `{"title": "veryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitleVeryLongTitle"}`,
 			inputUserId:          1,
 			inputParam:           1,
-			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {},
+			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
@@ -472,7 +485,7 @@ func TestHandler_updateItem(t *testing.T) {
 			inputBody:            `{"title": "test", "description": "t"}`,
 			inputUserId:          1,
 			inputParam:           1,
-			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {},
+			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
@@ -481,7 +494,7 @@ func TestHandler_updateItem(t *testing.T) {
 			inputBody:            `{"title": "test", "description": "VeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLongDescriptionVeryLong"}`,
 			inputUserId:          1,
 			inputParam:           1,
-			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {},
+			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {},
 			expectedStatusCode:   400,
 			expectedResponseBody: `{"error":"invalid input body"}`,
 		},
@@ -489,7 +502,7 @@ func TestHandler_updateItem(t *testing.T) {
 			name:                 "Invalid user id",
 			inputUserId:          "invalid",
 			inputParam:           1,
-			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {},
+			mockBehavior:         func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {},
 			expectedStatusCode:   500,
 			expectedResponseBody: `{"error":"failed to get user id"}`,
 		},
@@ -498,9 +511,13 @@ func TestHandler_updateItem(t *testing.T) {
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description": "testing", "done": true}`,
-			item:        model.TodoItem{Title: "test", Description: "testing", Done: true},
-			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
-				s.EXPECT().Update(userId, itemId, item).Return(errors.New("failed to update item"))
+			update: request.UpdateTodoItem{
+				Title:       test.StringPointer("test"),
+				Description: test.StringPointer("testing"),
+				Done:        test.BoolPointer(true),
+			},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
+				s.EXPECT().Update(userId, itemId, update).Return(errors.New("failed to update item"))
 			},
 			expectedStatusCode:   500,
 			expectedResponseBody: `{"error":"failed to update item"}`,
@@ -515,7 +532,7 @@ func TestHandler_updateItem(t *testing.T) {
 			defer c.Finish()
 
 			todoItem := mockService.NewMockTodoItem(c)
-			tc.mockBehavior(todoItem, tc.inputUserId, tc.inputParam, tc.item)
+			tc.mockBehavior(todoItem, tc.inputUserId, tc.inputParam, tc.update)
 
 			services := &service.Service{TodoItem: todoItem}
 			handler := NewHandler(services)

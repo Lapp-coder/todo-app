@@ -2,11 +2,12 @@ package handler
 
 import (
 	"errors"
+	"net/http"
+	"strconv"
+
 	"github.com/Lapp-coder/todo-app/internal/app/model"
 	"github.com/Lapp-coder/todo-app/internal/app/request"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 // createItem godoc
@@ -167,13 +168,12 @@ func (h Handler) updateItem(c *gin.Context) {
 		return
 	}
 
-	item, err := req.Validate()
-	if err != nil {
+	if err := req.Validate(); err != nil {
 		respondError(c, http.StatusBadRequest, err)
 		return
 	}
 
-	err = h.service.TodoItem.Update(userId, itemId, item)
+	err = h.service.TodoItem.Update(userId, itemId, req)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return

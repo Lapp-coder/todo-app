@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
+
 	"github.com/Lapp-coder/todo-app/internal/app/model"
 	"github.com/Lapp-coder/todo-app/internal/app/repository"
+	"github.com/Lapp-coder/todo-app/internal/app/request"
 )
 
 type TodoItemService struct {
@@ -50,7 +52,7 @@ func (s TodoItemService) GetById(userId, itemId int) (model.TodoItem, error) {
 	return s.repos.GetById(userId, itemId)
 }
 
-func (s TodoItemService) Update(userId, itemId int, item model.TodoItem) error {
+func (s TodoItemService) Update(userId, itemId int, update request.UpdateTodoItem) error {
 	if cacheItem[userId] != itemId {
 		if _, err := s.repos.GetById(userId, itemId); err != nil {
 			return errors.New("failed to update item")
@@ -59,7 +61,7 @@ func (s TodoItemService) Update(userId, itemId int, item model.TodoItem) error {
 		cacheItem[userId] = itemId
 	}
 
-	return s.repos.Update(itemId, item)
+	return s.repos.Update(itemId, update)
 }
 
 func (s TodoItemService) Delete(userId, itemId int) error {
