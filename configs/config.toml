@@ -1,11 +1,11 @@
 [server]
-host = "localhost"
+host = "0.0.0.0"
 port = "8080"
 maxHeaderBytes = 1
 
 [db]
-host = "localhost"
+host = "db"
 port = "5432"
 username = "postgres"
-db_name = "todo-db"
+db_name = "postgres"
 ssl_mode = "disable"

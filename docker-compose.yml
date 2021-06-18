@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  todo-app:
+    build: ./
+    command: ./build/bin/start
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    environment:
+      - DB_PASSWORD=postgres
+      - SIGNING_KEY=FmvdilKuErwSnQQteucGlIOwqEPyYm
+
+  db:
+    restart: always
+    image: postgres:latest
+    volumes:
+    - ./.database/postgres/data:/var/lib/postgres/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+    - 5436:5432

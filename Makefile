@@ -1,12 +1,12 @@
 .PHONY: build run migrate test swag
 build:
-	go build -o build/bin/start cmd/main.go
+	docker-compose build todo-app
 
 run:
-	./build/bin/start
+	docker-compose up todo-app
 
 migrate:
-	migrate -path ./schema/ -database "postgres://postgres:${POSTGRES_PASSWORD}@localhost:5432/todo-db?sslmode=disable" up
+	migrate -path ./schema/ -database "postgres://postgres:${POSTGRES_PASSWORD}@localhost:5436/postgres?sslmode=disable" up
 
 test:
 	go test -v -race -cover ./...

@@ -17,7 +17,7 @@ import (
 )
 
 // @title Todo app API
-// @version 1.0
+// @version 1.2
 // @description API server for todo list application
 
 // @host localhost:8080
@@ -42,7 +42,7 @@ func main() {
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
+		Password: os.Getenv("DB_PASSWORD"),
 		DBName:   viper.GetString("db.db_name"),
 		SSLMode:  viper.GetString("db.ssl_mode"),
 	})

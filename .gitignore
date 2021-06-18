@@ -6,3 +6,8 @@
 
 # Binary
 build/bin/start
+
+# Database
+.database
+
+.DS_STORE
