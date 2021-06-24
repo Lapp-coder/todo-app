@@ -10,7 +10,6 @@ import (
 	"github.com/Lapp-coder/todo-app/internal/app/repository"
 	"github.com/Lapp-coder/todo-app/internal/app/server"
 	"github.com/Lapp-coder/todo-app/internal/app/service"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -30,11 +29,6 @@ func main() {
 	// Завершение приложения при ошибке в инициализации конфигурационного файла
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("an error initializate a config file: %s", err.Error())
-	}
-
-	// Завершение приложения при ошибке в загрузке переменных окружения
-	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("an error loading env variables: %s", err.Error())
 	}
 
 	// Инициализация бд postgres и завершение приложения при ошибке в подключении к бд
