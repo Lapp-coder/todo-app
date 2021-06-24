@@ -48,10 +48,6 @@ func (ui *UpdateTodoItem) Validate() error {
 		fields = append(fields, validation.Field(&ui.Description, validation.Length(2, 100)))
 	}
 
-	if ui.Done != nil {
-		return errors.New("invalid input body")
-	}
-
 	if err := validation.ValidateStruct(ui, fields...); err != nil {
 		return errors.New("invalid input body")
 	}
