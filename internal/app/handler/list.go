@@ -41,7 +41,7 @@ func (h Handler) createList(c *gin.Context) {
 		return
 	}
 
-	listId, err := h.service.TodoList.Create(userId, model.TodoList{Title: req.Title, Description: req.Description})
+	listId, err := h.service.TodoList.Create(userId, model.TodoList{Title: req.Title, Description: req.Description, CompletionDate: req.CompletionDate})
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return
@@ -153,7 +153,7 @@ func (h Handler) updateList(c *gin.Context) {
 		return
 	}
 
-	if err := req.Validate(); err != nil {
+	if err = req.Validate(); err != nil {
 		respondError(c, http.StatusBadRequest, err)
 		return
 	}

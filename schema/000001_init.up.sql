@@ -8,9 +8,10 @@ CREATE TABLE users
 
 CREATE TABLE todo_lists
 (
-    id          SERIAL       NOT NULL UNIQUE,
-    title       VARCHAR(40)  NOT NULL,
-    description VARCHAR(100)
+    id              SERIAL       NOT NULL UNIQUE,
+    title           VARCHAR(40)  NOT NULL,
+    description     VARCHAR(100),
+    completion_date TIMESTAMP    DEFAULT NULL
 );
 
 CREATE TABLE todo_items

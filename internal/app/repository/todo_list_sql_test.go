@@ -41,7 +41,7 @@ func TestTodoListSQL_Create(t *testing.T) {
 			name: "OK_AllFields",
 			input: args{
 				userId: 1,
-				list:   model.TodoList{Title: "test", Description: "testing"},
+				list:   model.TodoList{Title: "test", Description: "testing", CompletionDate: "20210101:110611"},
 			},
 			mockBehavior: func(input args) {
 				rows := mock.NewRows([]string{"id"}).AddRow(1)
@@ -49,7 +49,7 @@ func TestTodoListSQL_Create(t *testing.T) {
 				mock.ExpectBegin()
 
 				query1 := fmt.Sprintf("INSERT INTO %s", todoListsTable)
-				mock.ExpectQuery(query1).WithArgs(input.list.Title, input.list.Description).WillReturnRows(rows)
+				mock.ExpectQuery(query1).WithArgs(input.list.Title, input.list.Description, input.list.CompletionDate).WillReturnRows(rows)
 
 				query2 := fmt.Sprintf("INSERT INTO %s", usersListsTable)
 				mock.ExpectExec(query2).WithArgs(input.userId, 1).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -63,6 +63,28 @@ func TestTodoListSQL_Create(t *testing.T) {
 			name: "OK_WithoutDescription",
 			input: args{
 				userId: 1,
+				list:   model.TodoList{Title: "test", CompletionDate: "20210101:110611"},
+			},
+			mockBehavior: func(input args) {
+				rows := mock.NewRows([]string{"id"}).AddRow(1)
+
+				mock.ExpectBegin()
+
+				query1 := fmt.Sprintf("INSERT INTO %s", todoListsTable)
+				mock.ExpectQuery(query1).WithArgs(input.list.Title, input.list.Description, input.list.CompletionDate).WillReturnRows(rows)
+
+				query2 := fmt.Sprintf("INSERT INTO %s", usersListsTable)
+				mock.ExpectExec(query2).WithArgs(input.userId, 1).WillReturnResult(sqlmock.NewResult(1, 1))
+
+				mock.ExpectCommit()
+			},
+			expectedListId: 1,
+			wantErr:        false,
+		},
+		{
+			name: "OK_WithoutCompletionDate",
+			input: args{
+				userId: 1,
 				list:   model.TodoList{Title: "test"},
 			},
 			mockBehavior: func(input args) {
@@ -71,7 +93,7 @@ func TestTodoListSQL_Create(t *testing.T) {
 				mock.ExpectBegin()
 
 				query1 := fmt.Sprintf("INSERT INTO %s", todoListsTable)
-				mock.ExpectQuery(query1).WithArgs(input.list.Title, input.list.Description).WillReturnRows(rows)
+				mock.ExpectQuery(query1).WithArgs(input.list.Title, input.list.Description, input.list.CompletionDate).WillReturnRows(rows)
 
 				query2 := fmt.Sprintf("INSERT INTO %s", usersListsTable)
 				mock.ExpectExec(query2).WithArgs(input.userId, 1).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -87,7 +109,7 @@ func TestTodoListSQL_Create(t *testing.T) {
 				mock.ExpectBegin()
 
 				query := fmt.Sprintf("INSERT INTO %s", todoListsTable)
-				mock.ExpectQuery(query).WithArgs("", "")
+				mock.ExpectQuery(query).WithArgs("", "", "")
 
 				mock.ExpectRollback()
 			},
@@ -148,9 +170,9 @@ func TestTodoListSQL_GetAll(t *testing.T) {
 				mock.ExpectQuery(query).WithArgs(input.userId).WillReturnRows(rows)
 			},
 			expectedLists: []model.TodoList{
-				{1, "test1", "testing1"},
-				{2, "test2", "testing2"},
-				{3, "test3", "testing3"},
+				{Id: 1, Title: "test1", Description: "testing1"},
+				{Id: 2, Title: "test2", Description: "testing2"},
+				{Id: 3, Title: "test3", Description: "testing3"},
 			},
 			wantErr: false,
 		},
@@ -294,14 +316,15 @@ func TestTodoListSQL_Update(t *testing.T) {
 			input: args{
 				listId: 1,
 				update: request.UpdateTodoList{
-					Title:       test.StringPointer("test"),
-					Description: test.StringPointer("testing"),
+					Title:          test.StringPointer("test"),
+					Description:    test.StringPointer("testing"),
+					CompletionDate: test.StringPointer("20210625:"),
 				},
 			},
 			mockBehavior: func(input args) {
 				query := fmt.Sprintf("UPDATE %s tl SET (.+) WHERE (.+)", todoListsTable)
 				mock.ExpectExec(query).WithArgs(
-					*input.update.Title, *input.update.Description, input.listId).WillReturnResult(sqlmock.NewResult(1, 1))
+					*input.update.Title, *input.update.Description, *input.update.CompletionDate, input.listId).WillReturnResult(sqlmock.NewResult(1, 1))
 			},
 			wantErr: false,
 		},
@@ -310,13 +333,14 @@ func TestTodoListSQL_Update(t *testing.T) {
 			input: args{
 				listId: 1,
 				update: request.UpdateTodoList{
-					Title: test.StringPointer("test"),
+					Title:          test.StringPointer("test"),
+					CompletionDate: test.StringPointer("20210625:"),
 				},
 			},
 			mockBehavior: func(input args) {
 				query := fmt.Sprintf("UPDATE %s tl SET (.+) WHERE (.+)", todoListsTable)
 				mock.ExpectExec(query).WithArgs(
-					*input.update.Title, input.listId).WillReturnResult(sqlmock.NewResult(1, 1))
+					*input.update.Title, *input.update.CompletionDate, input.listId).WillReturnResult(sqlmock.NewResult(1, 1))
 			},
 			wantErr: false,
 		},
@@ -325,13 +349,30 @@ func TestTodoListSQL_Update(t *testing.T) {
 			input: args{
 				listId: 1,
 				update: request.UpdateTodoList{
+					Description:    test.StringPointer("testing"),
+					CompletionDate: test.StringPointer("20210625:"),
+				},
+			},
+			mockBehavior: func(input args) {
+				query := fmt.Sprintf("UPDATE %s tl SET (.+) WHERE (.+)", todoListsTable)
+				mock.ExpectExec(query).WithArgs(
+					*input.update.Description, *input.update.CompletionDate, input.listId).WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK_WithoutCompletionDate",
+			input: args{
+				listId: 1,
+				update: request.UpdateTodoList{
+					Title:       test.StringPointer("test"),
 					Description: test.StringPointer("testing"),
 				},
 			},
 			mockBehavior: func(input args) {
 				query := fmt.Sprintf("UPDATE %s tl SET (.+) WHERE (.+)", todoListsTable)
 				mock.ExpectExec(query).WithArgs(
-					*input.update.Description, input.listId).WillReturnResult(sqlmock.NewResult(1, 1))
+					*input.update.Title, *input.update.Description, input.listId).WillReturnResult(sqlmock.NewResult(1, 1))
 			},
 			wantErr: false,
 		},

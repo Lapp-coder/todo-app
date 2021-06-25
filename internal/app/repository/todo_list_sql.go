@@ -24,8 +24,8 @@ func (r *TodoListSQL) Create(userId int, list model.TodoList) (int, error) {
 	}
 
 	err = r.db.QueryRow(fmt.Sprintf(
-		"INSERT INTO %s (title, description) VALUES ($1, $2) RETURNING id", todoListsTable),
-		list.Title, list.Description).Scan(&list.Id)
+		"INSERT INTO %s (title, description, completion_date) VALUES ($1, $2, $3) RETURNING id", todoListsTable),
+		list.Title, list.Description, list.CompletionDate).Scan(&list.Id)
 	if err != nil {
 		tx.Rollback()
 		return 0, errors.New("an error occurred when creating a list")
@@ -85,6 +85,12 @@ func (r *TodoListSQL) Update(listId int, update request.UpdateTodoList) error {
 	if update.Description != nil {
 		setValues = append(setValues, fmt.Sprintf("description=$%d", placeHolderId))
 		args = append(args, *update.Description)
+		placeHolderId++
+	}
+
+	if update.CompletionDate != nil {
+		setValues = append(setValues, fmt.Sprintf("completion_date=$%d", placeHolderId))
+		args = append(args, *update.CompletionDate)
 		placeHolderId++
 	}
 

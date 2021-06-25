@@ -6,13 +6,15 @@ import (
 )
 
 type CreateTodoList struct {
-	Title       string `json:"title" binding:"required"`
-	Description string `json:"description"`
+	Title          string `json:"title" binding:"required"`
+	Description    string `json:"description"`
+	CompletionDate string `json:"completion_date"`
 }
 
 type UpdateTodoList struct {
-	Title       *string `json:"title"`
-	Description *string `json:"description"`
+	Title          *string `json:"title"`
+	Description    *string `json:"description"`
+	CompletionDate *string `json:"completion_date"`
 }
 
 func (cl *CreateTodoList) Validate() error {
@@ -22,6 +24,18 @@ func (cl *CreateTodoList) Validate() error {
 
 	if &cl.Description != nil {
 		fields = append(fields, validation.Field(&cl.Description, validation.Length(2, 100)))
+	}
+
+	if cl.CompletionDate == "" {
+		cl.CompletionDate = getTimeNow()
+		return validation.ValidateStruct(
+			cl,
+			fields...,
+		)
+	}
+
+	if err := parseCompletedDate(&cl.CompletionDate); err != nil {
+		return err
 	}
 
 	return validation.ValidateStruct(
@@ -43,6 +57,19 @@ func (ul *UpdateTodoList) Validate() error {
 
 	if ul.Description != nil {
 		fields = append(fields, validation.Field(&ul.Description, validation.Length(2, 100)))
+	}
+
+	if ul.CompletionDate == nil {
+		timeNow := getTimeNow()
+		ul.CompletionDate = &timeNow
+		return validation.ValidateStruct(
+			ul,
+			fields...,
+		)
+	}
+
+	if err := parseCompletedDate(ul.CompletionDate); err != nil {
+		return err
 	}
 
 	if err := validation.ValidateStruct(ul, fields...); err != nil {
