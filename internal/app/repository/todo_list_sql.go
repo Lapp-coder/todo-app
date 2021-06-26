@@ -49,7 +49,7 @@ func (r *TodoListSQL) GetAll(userId int) ([]model.TodoList, error) {
 	var lists []model.TodoList
 
 	err := r.db.Select(&lists, fmt.Sprintf(
-		"SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN %s ul ON tl.id = ul.list_id WHERE ul.user_id = $1",
+		"SELECT tl.id, tl.title, tl.description, tl.completion_date FROM %s tl INNER JOIN %s ul ON tl.id = ul.list_id WHERE ul.user_id = $1",
 		todoListsTable, usersListsTable), userId)
 	if err != nil {
 		return nil, errors.New("failed to get all the lists")
@@ -62,7 +62,7 @@ func (r *TodoListSQL) GetById(userId, listId int) (model.TodoList, error) {
 	var list model.TodoList
 
 	err := r.db.Get(&list, fmt.Sprintf(
-		"SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN %s ul ON tl.id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2",
+		"SELECT tl.id, tl.title, tl.description, tl.completion_date FROM %s tl INNER JOIN %s ul ON tl.id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2",
 		todoListsTable, usersListsTable), userId, listId)
 	if err != nil {
 		return list, errors.New("failed to get the list")

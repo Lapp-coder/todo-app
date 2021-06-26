@@ -1,4 +1,4 @@
-# REST API for todo list application ```v1.2.0```
+# REST API for todo list application ```v2.0.0```
 
 ***
 

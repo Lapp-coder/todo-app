@@ -47,7 +47,7 @@ func (cl *CreateTodoList) Validate() error {
 func (ul *UpdateTodoList) Validate() error {
 	var fields []*validation.FieldRules
 
-	if ul.Title == nil && ul.Description == nil {
+	if ul.Title == nil && ul.Description == nil && ul.CompletionDate == nil {
 		return errors.New("update request has not values")
 	}
 
@@ -62,14 +62,16 @@ func (ul *UpdateTodoList) Validate() error {
 	if ul.CompletionDate == nil {
 		timeNow := getTimeNow()
 		ul.CompletionDate = &timeNow
-		return validation.ValidateStruct(
-			ul,
-			fields...,
-		)
+
+		if err := validation.ValidateStruct(ul, fields...); err != nil {
+			return errors.New("invalid input body")
+		}
+
+		return nil
 	}
 
 	if err := parseCompletedDate(ul.CompletionDate); err != nil {
-		return err
+		return errors.New("invalid input body")
 	}
 
 	if err := validation.ValidateStruct(ul, fields...); err != nil {

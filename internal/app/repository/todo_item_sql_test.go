@@ -40,13 +40,13 @@ func TestTodoItemSQL_Create(t *testing.T) {
 			name: "OK_AllFields",
 			input: args{
 				listId: 1,
-				item:   model.TodoItem{Title: "test", Description: "testing"},
+				item:   model.TodoItem{Title: "test", Description: "testing", CompletionDate: "20210715:"},
 			},
 			mockBehavior: func(input args) {
 				rows := mock.NewRows([]string{"id"}).AddRow(3)
 
 				query := fmt.Sprintf("INSERT INTO %s", todoItemsTable)
-				mock.ExpectQuery(query).WithArgs(input.listId, input.item.Title, input.item.Description).WillReturnRows(rows)
+				mock.ExpectQuery(query).WithArgs(input.listId, input.item.Title, input.item.Description, input.item.CompletionDate).WillReturnRows(rows)
 			},
 			expectedId: 3,
 			wantErr:    false,
@@ -55,19 +55,34 @@ func TestTodoItemSQL_Create(t *testing.T) {
 			name: "OK_WithoutDescription",
 			input: args{
 				listId: 1,
-				item:   model.TodoItem{Title: "test"},
+				item:   model.TodoItem{Title: "test", CompletionDate: "20210715:"},
 			},
 			mockBehavior: func(input args) {
 				rows := mock.NewRows([]string{"id"}).AddRow(3)
 
 				query := fmt.Sprintf("INSERT INTO %s", todoItemsTable)
-				mock.ExpectQuery(query).WithArgs(input.listId, input.item.Title, "").WillReturnRows(rows)
+				mock.ExpectQuery(query).WithArgs(input.listId, input.item.Title, "", input.item.CompletionDate).WillReturnRows(rows)
 			},
 			expectedId: 3,
 			wantErr:    false,
 		},
 		{
-			name: "OK_Emptyfields",
+			name: "OK_WithoutCompletionDate",
+			input: args{
+				listId: 1,
+				item:   model.TodoItem{Title: "test", Description: "testing"},
+			},
+			mockBehavior: func(input args) {
+				rows := mock.NewRows([]string{"id"}).AddRow(3)
+
+				query := fmt.Sprintf("INSERT INTO %s", todoItemsTable)
+				mock.ExpectQuery(query).WithArgs(input.listId, input.item.Title, input.item.Description, "").WillReturnRows(rows)
+			},
+			expectedId: 3,
+			wantErr:    false,
+		},
+		{
+			name: "OK_EmptyFields",
 			input: args{
 				listId: 1,
 			},
@@ -75,7 +90,7 @@ func TestTodoItemSQL_Create(t *testing.T) {
 				rows := mock.NewRows([]string{"id"}).AddRow(3)
 
 				query := fmt.Sprintf("INSERT INTO %s", todoItemsTable)
-				mock.ExpectQuery(query).WithArgs(input.listId, "", "").WillReturnRows(rows)
+				mock.ExpectQuery(query).WithArgs(input.listId, "", "", "").WillReturnRows(rows)
 			},
 			expectedId: 3,
 			wantErr:    false,
@@ -126,18 +141,18 @@ func TestTodoItemSQL_GetAll(t *testing.T) {
 			name:  "OK",
 			input: args{listId: 1},
 			mockBehavior: func(input args) {
-				rows := mock.NewRows([]string{"id", "list_id", "title", "description", "done"}).
-					AddRow(1, 1, "test", "testing", true).
-					AddRow(2, 1, "test2", "testing2", false).
-					AddRow(3, 1, "test3", "testing3", false)
+				rows := mock.NewRows([]string{"id", "list_id", "title", "description", "completion_date", "done"}).
+					AddRow(1, 1, "test", "testing", "20210626", true).
+					AddRow(2, 1, "test2", "testing2", "20210626", false).
+					AddRow(3, 1, "test3", "testing3", "20210626", false)
 
 				query := fmt.Sprintf("SELECT (.+) FROM %s ti WHERE (.+)", todoItemsTable)
 				mock.ExpectQuery(query).WithArgs(input.listId).WillReturnRows(rows)
 			},
 			expectedItems: []model.TodoItem{
-				{1, 1, "test", "testing", true},
-				{2, 1, "test2", "testing2", false},
-				{3, 1, "test3", "testing3", false},
+				{Id: 1, ListId: 1, Title: "test", Description: "testing", CompletionDate: "20210626", Done: true},
+				{Id: 2, ListId: 1, Title: "test2", Description: "testing2", CompletionDate: "20210626", Done: false},
+				{Id: 3, ListId: 1, Title: "test3", Description: "testing3", CompletionDate: "20210626", Done: false},
 			},
 			wantErr: false,
 		},
@@ -199,25 +214,26 @@ func TestTodoItemSQL_GetById(t *testing.T) {
 				listId: 3,
 			},
 			mockBehavior: func(input args) {
-				rows := mock.NewRows([]string{"id", "list_id", "title", "description", "done"}).
-					AddRow(1, 3, "test", "testing", true)
+				rows := mock.NewRows([]string{"id", "list_id", "title", "description", "completion_date", "done"}).
+					AddRow(1, 3, "test", "testing", "20210626", true)
 
 				query := fmt.Sprintf("SELECT (.+) FROM %s ti INNER JOIN %s ul ON (.+) WHERE (.+)", todoItemsTable, usersListsTable)
 				mock.ExpectQuery(query).WithArgs(input.userId, input.listId).WillReturnRows(rows)
 			},
 			expectedItem: model.TodoItem{
-				Id:          1,
-				ListId:      3,
-				Title:       "test",
-				Description: "testing",
-				Done:        true,
+				Id:             1,
+				ListId:         3,
+				Title:          "test",
+				Description:    "testing",
+				CompletionDate: "20210626",
+				Done:           true,
 			},
 			wantErr: false,
 		},
 		{
 			name: "Empty fields",
 			mockBehavior: func(input args) {
-				rows := mock.NewRows([]string{"id", "list_id", "title", "description", "done"})
+				rows := mock.NewRows([]string{"id", "list_id", "title", "completion_date", "description", "done"})
 
 				query := fmt.Sprintf("SELECT (.+) FROM %s ti INNER JOIN %s ul ON (.+) WHERE (.+)", todoItemsTable, usersListsTable)
 				mock.ExpectQuery(query).WithArgs(0, 0).WillReturnRows(rows)
@@ -271,6 +287,123 @@ func TestTodoItemSQL_Update(t *testing.T) {
 			input: args{
 				itemId: 1,
 				update: request.UpdateTodoItem{
+					Title:          test.StringPointer("test"),
+					Description:    test.StringPointer("testing"),
+					CompletionDate: test.StringPointer("20210626"),
+					Done:           test.BoolPointer(true),
+				},
+			},
+			mockBehavior: func(input args) {
+				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
+				mock.ExpectExec(query).WithArgs(
+					*input.update.Title, *input.update.Description, *input.update.CompletionDate, *input.update.Done, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK_WithoutDone",
+			input: args{
+				itemId: 1,
+				update: request.UpdateTodoItem{
+					Title:          test.StringPointer("test"),
+					Description:    test.StringPointer("testing"),
+					CompletionDate: test.StringPointer("20210626"),
+				},
+			},
+			mockBehavior: func(input args) {
+				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
+				mock.ExpectExec(query).WithArgs(
+					*input.update.Title, *input.update.Description, *input.update.CompletionDate, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK_WithoutDescription",
+			input: args{
+				itemId: 1,
+				update: request.UpdateTodoItem{
+					Title:          test.StringPointer("test"),
+					CompletionDate: test.StringPointer("20210626"),
+					Done:           test.BoolPointer(true),
+				},
+			},
+			mockBehavior: func(input args) {
+				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
+				mock.ExpectExec(query).WithArgs(
+					*input.update.Title, *input.update.CompletionDate, *input.update.Done, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK_WithoutTitle",
+			input: args{
+				itemId: 1,
+				update: request.UpdateTodoItem{
+					Description:    test.StringPointer("testing"),
+					CompletionDate: test.StringPointer("20210626"),
+					Done:           test.BoolPointer(true),
+				},
+			},
+			mockBehavior: func(input args) {
+				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
+				mock.ExpectExec(query).WithArgs(
+					*input.update.Description, *input.update.CompletionDate, *input.update.Done, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK_WithoutDoneAndDescription",
+			input: args{
+				itemId: 1,
+				update: request.UpdateTodoItem{
+					Title:          test.StringPointer("test"),
+					CompletionDate: test.StringPointer("20210626"),
+				},
+			},
+			mockBehavior: func(input args) {
+				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
+				mock.ExpectExec(query).WithArgs(
+					*input.update.Title, *input.update.CompletionDate, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK_WithoutTitleAndDone",
+			input: args{
+				itemId: 1,
+				update: request.UpdateTodoItem{
+					Description:    test.StringPointer("testing"),
+					CompletionDate: test.StringPointer("20210626"),
+				},
+			},
+			mockBehavior: func(input args) {
+				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
+				mock.ExpectExec(query).WithArgs(
+					*input.update.Description, *input.update.CompletionDate, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK_WithoutTitleAndDescription",
+			input: args{
+				itemId: 1,
+				update: request.UpdateTodoItem{
+					CompletionDate: test.StringPointer("20210626"),
+					Done:           test.BoolPointer(true),
+				},
+			},
+			mockBehavior: func(input args) {
+				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
+				mock.ExpectExec(query).WithArgs(
+					*input.update.CompletionDate, *input.update.Done, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+			wantErr: false,
+		},
+		{
+			name: "OK_WithoutCompletionDate",
+			input: args{
+				itemId: 1,
+				update: request.UpdateTodoItem{
 					Title:       test.StringPointer("test"),
 					Description: test.StringPointer("testing"),
 					Done:        test.BoolPointer(true),
@@ -280,99 +413,6 @@ func TestTodoItemSQL_Update(t *testing.T) {
 				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
 				mock.ExpectExec(query).WithArgs(
 					*input.update.Title, *input.update.Description, *input.update.Done, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
-			},
-			wantErr: false,
-		},
-		{
-			name: "OK_WithoutDone",
-			input: args{
-				itemId: 1,
-				update: request.UpdateTodoItem{
-					Title:       test.StringPointer("test"),
-					Description: test.StringPointer("testing"),
-				},
-			},
-			mockBehavior: func(input args) {
-				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
-				mock.ExpectExec(query).WithArgs(
-					*input.update.Title, *input.update.Description, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
-			},
-			wantErr: false,
-		},
-		{
-			name: "OK_WithoutDescription",
-			input: args{
-				itemId: 1,
-				update: request.UpdateTodoItem{
-					Title: test.StringPointer("test"),
-					Done:  test.BoolPointer(true),
-				},
-			},
-			mockBehavior: func(input args) {
-				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
-				mock.ExpectExec(query).WithArgs(
-					*input.update.Title, *input.update.Done, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
-			},
-			wantErr: false,
-		},
-		{
-			name: "OK_WithoutTitle",
-			input: args{
-				itemId: 1,
-				update: request.UpdateTodoItem{
-					Description: test.StringPointer("testing"),
-					Done:        test.BoolPointer(true),
-				},
-			},
-			mockBehavior: func(input args) {
-				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
-				mock.ExpectExec(query).WithArgs(
-					*input.update.Description, *input.update.Done, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
-			},
-			wantErr: false,
-		},
-		{
-			name: "OK_WithoutDoneAndDescription",
-			input: args{
-				itemId: 1,
-				update: request.UpdateTodoItem{
-					Title: test.StringPointer("test"),
-				},
-			},
-			mockBehavior: func(input args) {
-				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
-				mock.ExpectExec(query).WithArgs(
-					*input.update.Title, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
-			},
-			wantErr: false,
-		},
-		{
-			name: "OK_WithoutTitleAndDone",
-			input: args{
-				itemId: 1,
-				update: request.UpdateTodoItem{
-					Description: test.StringPointer("testing"),
-				},
-			},
-			mockBehavior: func(input args) {
-				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
-				mock.ExpectExec(query).WithArgs(
-					*input.update.Description, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
-			},
-			wantErr: false,
-		},
-		{
-			name: "OK_WithoutTitleAndDescription",
-			input: args{
-				itemId: 1,
-				update: request.UpdateTodoItem{
-					Done: test.BoolPointer(true),
-				},
-			},
-			mockBehavior: func(input args) {
-				query := fmt.Sprintf("UPDATE %s ti SET (.+) WHERE (.+)", todoItemsTable)
-				mock.ExpectExec(query).WithArgs(
-					*input.update.Done, input.itemId).WillReturnResult(sqlmock.NewResult(1, 1))
 			},
 			wantErr: false,
 		},

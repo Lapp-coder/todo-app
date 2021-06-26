@@ -20,8 +20,8 @@ func NewTodoItemSQL(db *sqlx.DB) *TodoItemSQL {
 
 func (r *TodoItemSQL) Create(listId int, item model.TodoItem) (int, error) {
 	err := r.db.QueryRow(fmt.Sprintf(
-		"INSERT INTO %s (list_id, title, description) VALUES ($1, $2, $3) RETURNING id", todoItemsTable),
-		listId, item.Title, item.Description).Scan(&item.Id)
+		"INSERT INTO %s (list_id, title, description, completion_date) VALUES ($1, $2, $3, $4) RETURNING id", todoItemsTable),
+		listId, item.Title, item.Description, item.CompletionDate).Scan(&item.Id)
 	if err != nil {
 		return 0, errors.New("an error occurred when creating item")
 	}
@@ -33,7 +33,7 @@ func (r *TodoItemSQL) GetAll(listId int) ([]model.TodoItem, error) {
 	var items []model.TodoItem
 
 	err := r.db.Select(&items, fmt.Sprintf(
-		`SELECT ti.id, ti.list_id, ti.title, ti.description, ti.done FROM %s ti 
+		`SELECT ti.id, ti.list_id, ti.title, ti.description, ti.completion_date, ti.done FROM %s ti 
 			WHERE ti.list_id = $1`, todoItemsTable), listId)
 	if err != nil {
 		return nil, errors.New("an error occurred when getting all items")
@@ -46,7 +46,7 @@ func (r *TodoItemSQL) GetById(userId, itemId int) (model.TodoItem, error) {
 	var item model.TodoItem
 
 	err := r.db.Get(&item, fmt.Sprintf(
-		`SELECT ti.id, ti.list_id, ti.title, ti.description, ti.done FROM %s ti
+		`SELECT ti.id, ti.list_id, ti.title, ti.description, ti.completion_date, ti.done FROM %s ti
 				INNER JOIN %s ul ON ul.list_id = ti.list_id WHERE ul.user_id = $1 AND ti.id = $2`, todoItemsTable, usersListsTable),
 		userId, itemId)
 	if err != nil {
@@ -70,6 +70,12 @@ func (r *TodoItemSQL) Update(itemId int, update request.UpdateTodoItem) error {
 	if update.Description != nil {
 		setValues = append(setValues, fmt.Sprintf("description=$%d", placeHolderId))
 		args = append(args, *update.Description)
+		placeHolderId++
+	}
+
+	if update.CompletionDate != nil {
+		setValues = append(setValues, fmt.Sprintf("completion_date=$%d", placeHolderId))
+		args = append(args, *update.CompletionDate)
 		placeHolderId++
 	}
 

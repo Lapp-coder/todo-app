@@ -35,8 +35,8 @@ func TestHandler_createItem(t *testing.T) {
 			name:        "OK_AllFields",
 			inputUserId: 1,
 			inputParam:  1,
-			inputBody:   `{"title": "test", "description":"testing", "done": false}`,
-			item:        model.TodoItem{Title: "test", Description: "testing", Done: false},
+			inputBody:   `{"title": "test", "description": "testing", "completion_date": "20210626:", "done": false}`,
+			item:        model.TodoItem{Title: "test", Description: "testing", CompletionDate: "20210626 ", Done: false},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {
 				s.EXPECT().Create(userId, listId, item).Return(1, nil)
 			},
@@ -47,8 +47,8 @@ func TestHandler_createItem(t *testing.T) {
 			name:        "OK_WithoutDone",
 			inputUserId: 1,
 			inputParam:  1,
-			inputBody:   `{"title": "test", "description":"testing"}`,
-			item:        model.TodoItem{Title: "test", Description: "testing"},
+			inputBody:   `{"title": "test", "description":"testing", "completion_date": "20210626:"}`,
+			item:        model.TodoItem{Title: "test", Description: "testing", CompletionDate: "20210626 "},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {
 				s.EXPECT().Create(userId, listId, item).Return(1, nil)
 			},
@@ -59,8 +59,20 @@ func TestHandler_createItem(t *testing.T) {
 			name:        "OK_WithoutDescription",
 			inputUserId: 1,
 			inputParam:  1,
-			inputBody:   `{"title": "test"}`,
-			item:        model.TodoItem{Title: "test"},
+			inputBody:   `{"title": "test", "completion_date":"20210626:"}`,
+			item:        model.TodoItem{Title: "test", CompletionDate: "20210626 "},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {
+				s.EXPECT().Create(userId, listId, item).Return(1, nil)
+			},
+			expectedStatusCode:   201,
+			expectedResponseBody: `{"item id":1}`,
+		},
+		{
+			name:        "OK_WithoutCompletionDate",
+			inputUserId: 1,
+			inputParam:  1,
+			inputBody:   `{"title": "test", "description":"testing"}`,
+			item:        model.TodoItem{Title: "test", Description: "testing", CompletionDate: test.GetTimeNow()},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {
 				s.EXPECT().Create(userId, listId, item).Return(1, nil)
 			},
@@ -133,8 +145,8 @@ func TestHandler_createItem(t *testing.T) {
 			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
-			inputBody:   `{"title": "test", "description":"testing"}`,
-			item:        model.TodoItem{Title: "test", Description: "testing"},
+			inputBody:   `{"title": "test", "description":"testing", "completion_date": "20210626:"}`,
+			item:        model.TodoItem{Title: "test", Description: "testing", CompletionDate: "20210626 "},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {
 				s.EXPECT().Create(userId, listId, item).Return(0, errors.New("failed to create item"))
 			},
@@ -201,14 +213,14 @@ func TestHandler_getAllItems(t *testing.T) {
 			inputUserId: 1,
 			inputParam:  1,
 			items: []model.TodoItem{
-				{Id: 1, ListId: 1, Title: "test", Description: "testing", Done: false},
-				{Id: 2, ListId: 1, Title: "test2", Description: "testing2", Done: true},
+				{Id: 1, ListId: 1, Title: "test", Description: "testing", CompletionDate: "20210626", Done: false},
+				{Id: 2, ListId: 1, Title: "test2", Description: "testing2", CompletionDate: "20210626", Done: true},
 			},
 			mockBehavior: func(s *mockService.MockTodoItem, items []model.TodoItem, userId, listId interface{}) {
 				s.EXPECT().GetAll(userId, listId).Return(items, nil)
 			},
 			expectedStatusCode:   200,
-			expectedResponseBody: `{"items":[{"Id":1,"ListId":1,"Title":"test","Description":"testing","Done":false},{"Id":2,"ListId":1,"Title":"test2","Description":"testing2","Done":true}]}`,
+			expectedResponseBody: `{"items":[{"Id":1,"ListId":1,"Title":"test","Description":"testing","CompletionDate":"20210626","Done":false},{"Id":2,"ListId":1,"Title":"test2","Description":"testing2","CompletionDate":"20210626","Done":true}]}`,
 		},
 		{
 			name:        "Invalid param",
@@ -294,12 +306,12 @@ func TestHandler_getItemById(t *testing.T) {
 			name:        "OK",
 			inputUserId: 1,
 			inputParam:  1,
-			item:        model.TodoItem{Id: 1, ListId: 1, Title: "test", Description: "testing", Done: false},
+			item:        model.TodoItem{Id: 1, ListId: 1, Title: "test", Description: "testing", CompletionDate: "20210626 ", Done: false},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
 				s.EXPECT().GetById(userId, itemId).Return(item, nil)
 			},
 			expectedStatusCode:   200,
-			expectedResponseBody: `{"item":{"Id":1,"ListId":1,"Title":"test","Description":"testing","Done":false}}`,
+			expectedResponseBody: `{"item":{"Id":1,"ListId":1,"Title":"test","Description":"testing","CompletionDate":"20210626 ","Done":false}}`,
 		},
 		{
 			name:        "Invalid param",
@@ -326,7 +338,7 @@ func TestHandler_getItemById(t *testing.T) {
 			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
-			item:        model.TodoItem{Id: 1, ListId: 1, Title: "test", Description: "testing", Done: false},
+			item:        model.TodoItem{Id: 1, ListId: 1, Title: "test", Description: "testing", CompletionDate: "20210626", Done: false},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, item model.TodoItem) {
 				s.EXPECT().GetById(userId, itemId).Return(item, errors.New("failed to get item by id"))
 			},
@@ -390,11 +402,12 @@ func TestHandler_updateItem(t *testing.T) {
 			name:        "OK_AllFields",
 			inputUserId: 1,
 			inputParam:  1,
-			inputBody:   `{"title": "test", "description": "testing", "done": true}`,
+			inputBody:   `{"title": "test", "description": "testing", "completion_date": "20210626:", "done": true}`,
 			update: request.UpdateTodoItem{
-				Title:       test.StringPointer("test"),
-				Description: test.StringPointer("testing"),
-				Done:        test.BoolPointer(true),
+				Title:          test.StringPointer("test"),
+				Description:    test.StringPointer("testing"),
+				CompletionDate: test.StringPointer("20210626 "),
+				Done:           test.BoolPointer(true),
 			},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
 				s.EXPECT().Update(userId, itemId, update).Return(nil)
@@ -406,10 +419,11 @@ func TestHandler_updateItem(t *testing.T) {
 			name:        "OK_WithoutDone",
 			inputUserId: 1,
 			inputParam:  1,
-			inputBody:   `{"title": "test", "description": "testing"}`,
+			inputBody:   `{"title": "test", "description": "testing", "completion_date": "20210626:"}`,
 			update: request.UpdateTodoItem{
-				Title:       test.StringPointer("test"),
-				Description: test.StringPointer("testing"),
+				Title:          test.StringPointer("test"),
+				Description:    test.StringPointer("testing"),
+				CompletionDate: test.StringPointer("20210626 "),
 			},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
 				s.EXPECT().Update(userId, itemId, update).Return(nil)
@@ -421,9 +435,10 @@ func TestHandler_updateItem(t *testing.T) {
 			name:        "OK_WithoutDescriptionAndDone",
 			inputUserId: 1,
 			inputParam:  1,
-			inputBody:   `{"title": "test"}`,
+			inputBody:   `{"title": "test", "completion_date": "20210626:"}`,
 			update: request.UpdateTodoItem{
-				Title: test.StringPointer("test"),
+				Title:          test.StringPointer("test"),
+				CompletionDate: test.StringPointer("20210626 "),
 			},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
 				s.EXPECT().Update(userId, itemId, update).Return(nil)
@@ -435,9 +450,27 @@ func TestHandler_updateItem(t *testing.T) {
 			name:        "OK_WithoutTitleAndDescription",
 			inputUserId: 1,
 			inputParam:  1,
-			inputBody:   `{"done": true}`,
+			inputBody:   `{"completion_date": "20210626:", "done": true}`,
 			update: request.UpdateTodoItem{
-				Done: test.BoolPointer(true),
+				CompletionDate: test.StringPointer("20210626 "),
+				Done:           test.BoolPointer(true),
+			},
+			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
+				s.EXPECT().Update(userId, itemId, update).Return(nil)
+			},
+			expectedStatusCode:   200,
+			expectedResponseBody: `{"result":"the item update was successful"}`,
+		},
+		{
+			name:        "OK_WithoutCompletionDate",
+			inputUserId: 1,
+			inputParam:  1,
+			inputBody:   `{"title": "test", "description": "testing", "done": true}`,
+			update: request.UpdateTodoItem{
+				Title:          test.StringPointer("test"),
+				Description:    test.StringPointer("testing"),
+				CompletionDate: test.StringPointer(test.GetTimeNow()),
+				Done:           test.BoolPointer(true),
 			},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
 				s.EXPECT().Update(userId, itemId, update).Return(nil)
@@ -510,11 +543,12 @@ func TestHandler_updateItem(t *testing.T) {
 			name:        "Service failure",
 			inputUserId: 1,
 			inputParam:  1,
-			inputBody:   `{"title": "test", "description": "testing", "done": true}`,
+			inputBody:   `{"title": "test", "description": "testing", "completion_date": "20210626:", "done": true}`,
 			update: request.UpdateTodoItem{
-				Title:       test.StringPointer("test"),
-				Description: test.StringPointer("testing"),
-				Done:        test.BoolPointer(true),
+				Title:          test.StringPointer("test"),
+				Description:    test.StringPointer("testing"),
+				CompletionDate: test.StringPointer("20210626 "),
+				Done:           test.BoolPointer(true),
 			},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
 				s.EXPECT().Update(userId, itemId, update).Return(errors.New("failed to update item"))

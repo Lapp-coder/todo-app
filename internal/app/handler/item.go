@@ -49,7 +49,8 @@ func (h Handler) createItem(c *gin.Context) {
 		return
 	}
 
-	itemId, err := h.service.TodoItem.Create(userId, listId, model.TodoItem{Title: req.Title, Description: req.Description, Done: req.Done})
+	item := model.TodoItem{Title: req.Title, Description: req.Description, CompletionDate: req.CompletionDate, Done: req.Done}
+	itemId, err := h.service.TodoItem.Create(userId, listId, item)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return
@@ -168,7 +169,7 @@ func (h Handler) updateItem(c *gin.Context) {
 		return
 	}
 
-	if err := req.Validate(); err != nil {
+	if err = req.Validate(); err != nil {
 		respondError(c, http.StatusBadRequest, err)
 		return
 	}

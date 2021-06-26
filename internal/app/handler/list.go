@@ -41,7 +41,8 @@ func (h Handler) createList(c *gin.Context) {
 		return
 	}
 
-	listId, err := h.service.TodoList.Create(userId, model.TodoList{Title: req.Title, Description: req.Description, CompletionDate: req.CompletionDate})
+	list := model.TodoList{Title: req.Title, Description: req.Description, CompletionDate: req.CompletionDate}
+	listId, err := h.service.TodoList.Create(userId, list)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, err)
 		return

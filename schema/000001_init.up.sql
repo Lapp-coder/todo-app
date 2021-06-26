@@ -11,7 +11,7 @@ CREATE TABLE todo_lists
     id              SERIAL       NOT NULL UNIQUE,
     title           VARCHAR(40)  NOT NULL,
     description     VARCHAR(100),
-    completion_date TIMESTAMP    DEFAULT NULL
+    completion_date TIMESTAMP
 );
 
 CREATE TABLE todo_items
@@ -20,6 +20,7 @@ CREATE TABLE todo_items
     list_id     INT          NOT NULL,
     title       VARCHAR(40)  NOT NULL,
     description VARCHAR(100),
+    completion_date TIMESTAMP,
     done        BOOLEAN      NOT NULL DEFAULT FALSE
 );
 

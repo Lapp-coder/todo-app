@@ -161,18 +161,18 @@ func TestTodoListSQL_GetAll(t *testing.T) {
 			name:  "OK",
 			input: args{userId: 1},
 			mockBehavior: func(input args) {
-				rows := mock.NewRows([]string{"id", "title", "description"}).
-					AddRow(1, "test1", "testing1").
-					AddRow(2, "test2", "testing2").
-					AddRow(3, "test3", "testing3")
+				rows := mock.NewRows([]string{"id", "title", "description", "completion_date"}).
+					AddRow(1, "test1", "testing1", "20210626").
+					AddRow(2, "test2", "testing2", "20210626").
+					AddRow(3, "test3", "testing3", "20210626")
 
 				query := fmt.Sprintf("SELECT (.+) FROM %s tl INNER JOIN %s ul ON (.+) WHERE (.+)", todoListsTable, usersListsTable)
 				mock.ExpectQuery(query).WithArgs(input.userId).WillReturnRows(rows)
 			},
 			expectedLists: []model.TodoList{
-				{Id: 1, Title: "test1", Description: "testing1"},
-				{Id: 2, Title: "test2", Description: "testing2"},
-				{Id: 3, Title: "test3", Description: "testing3"},
+				{Id: 1, Title: "test1", Description: "testing1", CompletionDate: "20210626"},
+				{Id: 2, Title: "test2", Description: "testing2", CompletionDate: "20210626"},
+				{Id: 3, Title: "test3", Description: "testing3", CompletionDate: "20210626"},
 			},
 			wantErr: false,
 		},
@@ -234,13 +234,13 @@ func TestTodoListSQL_GetById(t *testing.T) {
 				listId: 3,
 			},
 			mockBehavior: func(input args) {
-				rows := mock.NewRows([]string{"id", "title", "description"}).
-					AddRow(3, "test", "testing")
+				rows := mock.NewRows([]string{"id", "title", "description", "completion_date"}).
+					AddRow(3, "test", "testing", "20210726")
 
 				query := fmt.Sprintf("SELECT (.+) FROM %s tl INNER JOIN %s ul ON (.+) WHERE (.+)", todoListsTable, usersListsTable)
 				mock.ExpectQuery(query).WithArgs(input.userId, input.listId).WillReturnRows(rows)
 			},
-			expectedList: model.TodoList{Id: 3, Title: "test", Description: "testing"},
+			expectedList: model.TodoList{Id: 3, Title: "test", Description: "testing", CompletionDate: "20210726"},
 			wantErr:      false,
 		},
 		{
