@@ -8,16 +8,16 @@ services:
       - 8080:8080
     depends_on:
       - db
-    environment:
-      - DB_PASSWORD=${DB_PASSWORD}
-      - SIGNING_KEY=${SIGNING_KEY}
+    env_file:
+      - .env
+
 
   db:
     restart: always
     image: postgres:latest
     volumes:
     - ./.database/postgres/data:/var/lib/postgres/data
-    environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     ports:
     - 5436:5432

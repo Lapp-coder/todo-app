@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/Lapp-coder/todo-app/internal/app/request"
-	"github.com/Lapp-coder/todo-app/test"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/Lapp-coder/todo-app/internal/app/request"
+	"github.com/Lapp-coder/todo-app/test"
 
 	"github.com/Lapp-coder/todo-app/internal/app/model"
 	"github.com/Lapp-coder/todo-app/internal/app/service"
@@ -43,9 +44,9 @@ func TestHandler_createList(t *testing.T) {
 		},
 		{
 			name:        "OK_WithoutDescription",
-			inputBody:   `{"title":"Test"}`,
+			inputBody:   `{"title":"Test","completion_date":"20210626:"}`,
 			inputUserId: 1,
-			inputList:   model.TodoList{Title: "Test", CompletionDate: test.GetTimeNow()},
+			inputList:   model.TodoList{Title: "Test", CompletionDate: "20210626 "},
 			mockBehavior: func(s *mockService.MockTodoList, userId int, list model.TodoList) {
 				s.EXPECT().Create(userId, list).Return(1, nil)
 			},
@@ -56,7 +57,7 @@ func TestHandler_createList(t *testing.T) {
 			name:        "OK_WithoutCompletionDate",
 			inputBody:   `{"title":"Test","description":"testing"}`,
 			inputUserId: 1,
-			inputList:   model.TodoList{Title: "Test", Description: "testing", CompletionDate: test.GetTimeNow()},
+			inputList:   model.TodoList{Title: "Test", Description: "testing", CompletionDate: test.DefaultTime},
 			mockBehavior: func(s *mockService.MockTodoList, userId int, list model.TodoList) {
 				s.EXPECT().Create(userId, list).Return(1, nil)
 			},
@@ -105,8 +106,8 @@ func TestHandler_createList(t *testing.T) {
 		},
 		{
 			name:        "Service failure",
-			inputBody:   `{"title": "test", "description": "testing"}`,
-			inputList:   model.TodoList{Title: "test", Description: "testing", CompletionDate: test.GetTimeNow()},
+			inputBody:   `{"title": "test", "description": "testing", "completion_date": "20210626:"}`,
+			inputList:   model.TodoList{Title: "test", Description: "testing", CompletionDate: "20210626 "},
 			inputUserId: 1,
 			mockBehavior: func(s *mockService.MockTodoList, userId int, list model.TodoList) {
 				s.EXPECT().Create(userId, list).Return(0, errors.New("error occurred when creating a list"))
@@ -398,9 +399,8 @@ func TestHandler_updateList(t *testing.T) {
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description": "testing"}`,
 			updateList: request.UpdateTodoList{
-				Title:          test.StringPointer("test"),
-				Description:    test.StringPointer("testing"),
-				CompletionDate: test.StringPointer(test.GetTimeNow()),
+				Title:       test.StringPointer("test"),
+				Description: test.StringPointer("testing"),
 			},
 			mockBehavior: func(s *mockService.MockTodoList, userId, listId interface{}, update request.UpdateTodoList) {
 				s.EXPECT().Update(userId, listId, update).Return(nil)

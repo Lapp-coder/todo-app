@@ -30,11 +30,7 @@ func (ci *CreateTodoItem) Validate() error {
 	}
 
 	if ci.CompletionDate == "" {
-		ci.CompletionDate = getTimeNow()
-		return validation.ValidateStruct(
-			ci,
-			fields...,
-		)
+		ci.CompletionDate = defaultTime
 	}
 
 	if err := parseCompletedDate(&ci.CompletionDate); err != nil {
@@ -62,23 +58,10 @@ func (ui *UpdateTodoItem) Validate() error {
 		fields = append(fields, validation.Field(&ui.Description, validation.Length(2, 100)))
 	}
 
-	if ui.CompletionDate == nil {
-		timeNow := getTimeNow()
-		ui.CompletionDate = &timeNow
-
-		if err := validation.ValidateStruct(ui, fields...); err != nil {
+	if ui.CompletionDate != nil {
+		if err := parseCompletedDate(ui.CompletionDate); err != nil {
 			return errors.New("invalid input body")
 		}
-
-		if err := validation.ValidateStruct(ui, fields...); err != nil {
-			return errors.New("invalid input body")
-		}
-
-		return nil
-	}
-
-	if err := parseCompletedDate(ui.CompletionDate); err != nil {
-		return err
 	}
 
 	if err := validation.ValidateStruct(ui, fields...); err != nil {

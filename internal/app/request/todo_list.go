@@ -2,6 +2,7 @@ package request
 
 import (
 	"errors"
+
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 
@@ -27,11 +28,7 @@ func (cl *CreateTodoList) Validate() error {
 	}
 
 	if cl.CompletionDate == "" {
-		cl.CompletionDate = getTimeNow()
-		return validation.ValidateStruct(
-			cl,
-			fields...,
-		)
+		cl.CompletionDate = defaultTime
 	}
 
 	if err := parseCompletedDate(&cl.CompletionDate); err != nil {
@@ -59,19 +56,10 @@ func (ul *UpdateTodoList) Validate() error {
 		fields = append(fields, validation.Field(&ul.Description, validation.Length(2, 100)))
 	}
 
-	if ul.CompletionDate == nil {
-		timeNow := getTimeNow()
-		ul.CompletionDate = &timeNow
-
-		if err := validation.ValidateStruct(ul, fields...); err != nil {
+	if ul.CompletionDate != nil {
+		if err := parseCompletedDate(ul.CompletionDate); err != nil {
 			return errors.New("invalid input body")
 		}
-
-		return nil
-	}
-
-	if err := parseCompletedDate(ul.CompletionDate); err != nil {
-		return errors.New("invalid input body")
 	}
 
 	if err := validation.ValidateStruct(ul, fields...); err != nil {

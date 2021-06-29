@@ -72,7 +72,7 @@ func TestHandler_createItem(t *testing.T) {
 			inputUserId: 1,
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description":"testing"}`,
-			item:        model.TodoItem{Title: "test", Description: "testing", CompletionDate: test.GetTimeNow()},
+			item:        model.TodoItem{Title: "test", Description: "testing", CompletionDate: test.DefaultTime},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, listId interface{}, item model.TodoItem) {
 				s.EXPECT().Create(userId, listId, item).Return(1, nil)
 			},
@@ -467,10 +467,9 @@ func TestHandler_updateItem(t *testing.T) {
 			inputParam:  1,
 			inputBody:   `{"title": "test", "description": "testing", "done": true}`,
 			update: request.UpdateTodoItem{
-				Title:          test.StringPointer("test"),
-				Description:    test.StringPointer("testing"),
-				CompletionDate: test.StringPointer(test.GetTimeNow()),
-				Done:           test.BoolPointer(true),
+				Title:       test.StringPointer("test"),
+				Description: test.StringPointer("testing"),
+				Done:        test.BoolPointer(true),
 			},
 			mockBehavior: func(s *mockService.MockTodoItem, userId, itemId interface{}, update request.UpdateTodoItem) {
 				s.EXPECT().Update(userId, itemId, update).Return(nil)

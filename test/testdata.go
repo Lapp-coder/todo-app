@@ -1,8 +1,7 @@
 package test
 
-import (
-	"strconv"
-	"time"
+const (
+	DefaultTime = "19700101 "
 )
 
 func StringPointer(s string) *string {
@@ -11,12 +10,4 @@ func StringPointer(s string) *string {
 
 func BoolPointer(b bool) *bool {
 	return &b
-}
-
-func GetTimeNow() string {
-	year := strconv.Itoa(time.Now().Year())
-	mouth := time.Now().Month().String()
-	day := strconv.Itoa(time.Now().Day())
-
-	return year + mouth + day
 }

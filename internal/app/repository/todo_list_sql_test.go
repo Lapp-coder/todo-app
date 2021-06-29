@@ -41,7 +41,7 @@ func TestTodoListSQL_Create(t *testing.T) {
 			name: "OK_AllFields",
 			input: args{
 				userId: 1,
-				list:   model.TodoList{Title: "test", Description: "testing", CompletionDate: "20210101:110611"},
+				list:   model.TodoList{Title: "test", Description: "testing", CompletionDate: "20210101 110611"},
 			},
 			mockBehavior: func(input args) {
 				rows := mock.NewRows([]string{"id"}).AddRow(1)
@@ -63,7 +63,7 @@ func TestTodoListSQL_Create(t *testing.T) {
 			name: "OK_WithoutDescription",
 			input: args{
 				userId: 1,
-				list:   model.TodoList{Title: "test", CompletionDate: "20210101:110611"},
+				list:   model.TodoList{Title: "test", CompletionDate: "20210101 110611"},
 			},
 			mockBehavior: func(input args) {
 				rows := mock.NewRows([]string{"id"}).AddRow(1)
@@ -93,7 +93,7 @@ func TestTodoListSQL_Create(t *testing.T) {
 				mock.ExpectBegin()
 
 				query1 := fmt.Sprintf("INSERT INTO %s", todoListsTable)
-				mock.ExpectQuery(query1).WithArgs(input.list.Title, input.list.Description, input.list.CompletionDate).WillReturnRows(rows)
+				mock.ExpectQuery(query1).WithArgs(input.list.Title, input.list.Description, "").WillReturnRows(rows)
 
 				query2 := fmt.Sprintf("INSERT INTO %s", usersListsTable)
 				mock.ExpectExec(query2).WithArgs(input.userId, 1).WillReturnResult(sqlmock.NewResult(1, 1))
@@ -318,7 +318,7 @@ func TestTodoListSQL_Update(t *testing.T) {
 				update: request.UpdateTodoList{
 					Title:          test.StringPointer("test"),
 					Description:    test.StringPointer("testing"),
-					CompletionDate: test.StringPointer("20210625:"),
+					CompletionDate: test.StringPointer("20210625 "),
 				},
 			},
 			mockBehavior: func(input args) {
@@ -334,7 +334,7 @@ func TestTodoListSQL_Update(t *testing.T) {
 				listId: 1,
 				update: request.UpdateTodoList{
 					Title:          test.StringPointer("test"),
-					CompletionDate: test.StringPointer("20210625:"),
+					CompletionDate: test.StringPointer("20210625 "),
 				},
 			},
 			mockBehavior: func(input args) {
@@ -350,7 +350,7 @@ func TestTodoListSQL_Update(t *testing.T) {
 				listId: 1,
 				update: request.UpdateTodoList{
 					Description:    test.StringPointer("testing"),
-					CompletionDate: test.StringPointer("20210625:"),
+					CompletionDate: test.StringPointer("20210625 "),
 				},
 			},
 			mockBehavior: func(input args) {

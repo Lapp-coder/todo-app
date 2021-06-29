@@ -3,10 +3,11 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/Lapp-coder/todo-app/internal/app/model"
 	"github.com/Lapp-coder/todo-app/internal/app/request"
 	"github.com/jmoiron/sqlx"
-	"strings"
 )
 
 type TodoListSQL struct {

@@ -2,18 +2,12 @@ package request
 
 import (
 	"errors"
-	"strconv"
 	"strings"
-	"time"
 )
 
-func getTimeNow() string {
-	year := strconv.Itoa(time.Now().Year())
-	mouth := time.Now().Month().String()
-	day := strconv.Itoa(time.Now().Day())
-
-	return year + mouth + day
-}
+const (
+	defaultTime = "19700101:"
+)
 
 func parseCompletedDate(date *string) error {
 	strDate := *date

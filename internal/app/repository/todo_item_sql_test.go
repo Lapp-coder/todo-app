@@ -40,7 +40,7 @@ func TestTodoItemSQL_Create(t *testing.T) {
 			name: "OK_AllFields",
 			input: args{
 				listId: 1,
-				item:   model.TodoItem{Title: "test", Description: "testing", CompletionDate: "20210715:"},
+				item:   model.TodoItem{Title: "test", Description: "testing", CompletionDate: "20210715 "},
 			},
 			mockBehavior: func(input args) {
 				rows := mock.NewRows([]string{"id"}).AddRow(3)
@@ -55,7 +55,7 @@ func TestTodoItemSQL_Create(t *testing.T) {
 			name: "OK_WithoutDescription",
 			input: args{
 				listId: 1,
-				item:   model.TodoItem{Title: "test", CompletionDate: "20210715:"},
+				item:   model.TodoItem{Title: "test", CompletionDate: "20210715 "},
 			},
 			mockBehavior: func(input args) {
 				rows := mock.NewRows([]string{"id"}).AddRow(3)
@@ -289,7 +289,7 @@ func TestTodoItemSQL_Update(t *testing.T) {
 				update: request.UpdateTodoItem{
 					Title:          test.StringPointer("test"),
 					Description:    test.StringPointer("testing"),
-					CompletionDate: test.StringPointer("20210626"),
+					CompletionDate: test.StringPointer("20210626 "),
 					Done:           test.BoolPointer(true),
 				},
 			},
@@ -307,7 +307,7 @@ func TestTodoItemSQL_Update(t *testing.T) {
 				update: request.UpdateTodoItem{
 					Title:          test.StringPointer("test"),
 					Description:    test.StringPointer("testing"),
-					CompletionDate: test.StringPointer("20210626"),
+					CompletionDate: test.StringPointer("20210626 "),
 				},
 			},
 			mockBehavior: func(input args) {
@@ -323,7 +323,7 @@ func TestTodoItemSQL_Update(t *testing.T) {
 				itemId: 1,
 				update: request.UpdateTodoItem{
 					Title:          test.StringPointer("test"),
-					CompletionDate: test.StringPointer("20210626"),
+					CompletionDate: test.StringPointer("20210626 "),
 					Done:           test.BoolPointer(true),
 				},
 			},
@@ -340,7 +340,7 @@ func TestTodoItemSQL_Update(t *testing.T) {
 				itemId: 1,
 				update: request.UpdateTodoItem{
 					Description:    test.StringPointer("testing"),
-					CompletionDate: test.StringPointer("20210626"),
+					CompletionDate: test.StringPointer("20210626 "),
 					Done:           test.BoolPointer(true),
 				},
 			},
@@ -357,7 +357,7 @@ func TestTodoItemSQL_Update(t *testing.T) {
 				itemId: 1,
 				update: request.UpdateTodoItem{
 					Title:          test.StringPointer("test"),
-					CompletionDate: test.StringPointer("20210626"),
+					CompletionDate: test.StringPointer("20210626 "),
 				},
 			},
 			mockBehavior: func(input args) {
@@ -373,7 +373,7 @@ func TestTodoItemSQL_Update(t *testing.T) {
 				itemId: 1,
 				update: request.UpdateTodoItem{
 					Description:    test.StringPointer("testing"),
-					CompletionDate: test.StringPointer("20210626"),
+					CompletionDate: test.StringPointer("20210626 "),
 				},
 			},
 			mockBehavior: func(input args) {
@@ -388,7 +388,7 @@ func TestTodoItemSQL_Update(t *testing.T) {
 			input: args{
 				itemId: 1,
 				update: request.UpdateTodoItem{
-					CompletionDate: test.StringPointer("20210626"),
+					CompletionDate: test.StringPointer("20210626 "),
 					Done:           test.BoolPointer(true),
 				},
 			},
