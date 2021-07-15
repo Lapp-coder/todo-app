@@ -66,7 +66,7 @@ func main() {
 
 	logrus.Print("TodoApp started")
 
-	// Ожидание на получение любого из сигналов из двух сигналов (SIGTERM, SIGINT) от системы для продолжения выполнения функции main()
+	// Ожидание на получение любого из двух сигналов (SIGTERM, SIGINT) от системы для продолжения выполнения функции main()
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
