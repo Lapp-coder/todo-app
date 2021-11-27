@@ -1,0 +1,610 @@
+basePath: /
+definitions:
+  model.CreateTodoItem:
+    properties:
+      completion_date:
+        type: string
+      description:
+        type: string
+      done:
+        type: boolean
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  model.CreateTodoList:
+    properties:
+      completion_date:
+        type: string
+      description:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  model.SignIn:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.SignUp:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  model.TodoItem:
+    properties:
+      completion_date:
+        type: string
+      description:
+        type: string
+      done:
+        type: boolean
+      id:
+        type: integer
+      list_id:
+        type: integer
+      title:
+        type: string
+    type: object
+  model.TodoList:
+    properties:
+      completion_date:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  model.UpdateTodoItem:
+    properties:
+      completion_date:
+        type: string
+      description:
+        type: string
+      done:
+        type: boolean
+      title:
+        type: string
+    type: object
+  model.UpdateTodoList:
+    properties:
+      completion_date:
+        type: string
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  swagger.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  swagger.GetAllItemsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/model.TodoItem'
+        type: array
+    type: object
+  swagger.GetAllListsResponse:
+    properties:
+      lists:
+        items:
+          $ref: '#/definitions/model.TodoList'
+        type: array
+    type: object
+  swagger.GetItemByIDResponse:
+    properties:
+      item:
+        $ref: '#/definitions/model.TodoItem'
+    type: object
+  swagger.GetListByIDResponse:
+    properties:
+      list:
+        $ref: '#/definitions/model.TodoList'
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API server for todo list application
+  title: Todo app API
+  version: "1.2"
+paths:
+  /api/items/{id}:
+    delete:
+      description: delete item by id
+      operationId: delete-item
+      parameters:
+      - description: Item id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Result
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete item
+      tags:
+      - items
+    get:
+      description: get item by id
+      operationId: get-item-by-id
+      parameters:
+      - description: Item id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.GetItemByIDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get item by id
+      tags:
+      - items
+    put:
+      consumes:
+      - application/json
+      description: update item by id
+      operationId: update-item
+      parameters:
+      - description: Item id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update values
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateTodoItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Result
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update item
+      tags:
+      - items
+  /api/lists/:
+    get:
+      description: get all lists
+      operationId: get-all-lists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.GetAllListsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all lists
+      tags:
+      - lists
+    post:
+      consumes:
+      - application/json
+      description: create list
+      operationId: create-list
+      parameters:
+      - description: List info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateTodoList'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: List id
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create list
+      tags:
+      - lists
+  /api/lists/{id}:
+    delete:
+      description: delete list by id
+      operationId: delete-list
+      parameters:
+      - description: List id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Result
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete list
+      tags:
+      - lists
+    get:
+      description: get list by id
+      operationId: get-list-by-id
+      parameters:
+      - description: List id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.GetListByIDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get list by id
+      tags:
+      - lists
+    put:
+      consumes:
+      - application/json
+      description: update list by id
+      operationId: update-list
+      parameters:
+      - description: List id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update values
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateTodoList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Result
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update list
+      tags:
+      - lists
+  /api/lists/{id}/items/:
+    get:
+      description: get all items
+      operationId: get-all-items
+      parameters:
+      - description: List id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.GetAllItemsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all items
+      tags:
+      - items
+    post:
+      consumes:
+      - application/json
+      description: create item
+      operationId: create-item
+      parameters:
+      - description: List id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Item info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateTodoItem'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Item id
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create item
+      tags:
+      - items
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: login
+      operationId: login
+      parameters:
+      - description: Credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.SignIn'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      summary: Sign in
+      tags:
+      - auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: create account
+      operationId: create-account
+      parameters:
+      - description: Account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.SignUp'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User id
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/swagger.ErrorResponse'
+      summary: Sign up
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

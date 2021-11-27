@@ -1,15 +1,22 @@
-.PHONY: build run migrate test swag
+.PHONY: build run migrate-up migrate-down test swag
+.SILENT:
 build:
 	docker-compose build todo-app
 
 run:
 	docker-compose up todo-app
 
-migrate:
-	migrate -path ./schema/ -database "postgres://postgres:${POSTGRES_PASSWORD}@localhost:5436/postgres?sslmode=disable" up
+migrate-up:
+	migrate -path ./migrations/ -database "postgres://postgres:${POSTGRES_PASSWORD}@localhost:5432/postgres?sslmode=disable" up
+
+migrate-down:
+	migrate -path ./migrations/ -database "postgres://postgres:${POSTGRES_PASSWORD}@localhost:5432/postgres?sslmode=disable" down 
 
 test:
 	go test -v -race -cover ./...
 
+mockgen:
+	go generate ./internal/service/
+
 swag:
-	${HOME}/go/bin/swag init -g cmd/main.go -o swagger/docs/
+	swag init -g cmd/main.go -o docs/

@@ -6,17 +6,20 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Lapp-coder/todo-app/internal/app/handler"
-	"github.com/Lapp-coder/todo-app/internal/app/repository"
-	"github.com/Lapp-coder/todo-app/internal/app/server"
-	"github.com/Lapp-coder/todo-app/internal/app/service"
+	"github.com/Lapp-coder/todo-app/internal/config"
+	"github.com/Lapp-coder/todo-app/internal/handler"
+	"github.com/Lapp-coder/todo-app/internal/repository"
+	"github.com/Lapp-coder/todo-app/internal/repository/postgres"
+	"github.com/Lapp-coder/todo-app/internal/server"
+	"github.com/Lapp-coder/todo-app/internal/service"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
+const configPath = "configs/"
+
 // @title Todo app API
-// @version 1.2
+// @version 2.1
 // @description API server for todo list application
 
 // @host localhost:8080
@@ -26,58 +29,42 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	if err := initConfig(); err != nil {
-		logrus.Fatalf("an error initializate a config file: %s", err.Error())
+	cfg, err := config.New(configPath)
+	if err != nil {
+		logrus.Fatalf("failed to initializate config file: %s", err.Error())
 	}
 
-	db, err := repository.NewPostgresDB(repository.ConfigConnect{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		DBName:   viper.GetString("db.db_name"),
-		SSLMode:  viper.GetString("db.ssl_mode"),
-	})
+	db, err := postgres.NewDB(cfg.PostgresDB)
 	if err != nil {
 		logrus.Fatalf("failed to initializate db: %s", err.Error())
 	}
 
-	repositories := repository.NewRepository(db)
-	services := service.NewService(repositories)
-	handlers := handler.NewHandler(services)
+	repositories := repository.New(db)
+	services := service.New(repositories, cfg.Service)
+	handlers := handler.New(services)
 
-	srv := server.NewServer(server.Config{
-		Host:           viper.GetString("server.host"),
-		Port:           viper.GetString("server.port"),
-		MaxHeaderBytes: viper.GetInt("server.maxHeaderBytes"),
-		Handler:        handlers.InitRoutes(),
-	})
+	cfg.Handler = handlers.InitRoutes()
+	srv := server.NewServer(cfg.Server)
 
 	go func() {
 		if err = srv.Run(); err != nil {
-			logrus.Errorf("an error occurred while starting the server: %s", err.Error())
+			logrus.Errorf("failed to starting server: %s", err.Error())
 		}
 	}()
 
-	logrus.Print("TodoApp started")
+	logrus.Info("todo-app started")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
-	logrus.Print("TodoApp shutting down")
+	logrus.Info("todo-app shutting down")
 
 	if err = srv.Shutdown(context.Background()); err != nil {
-		logrus.Errorf("an error occurred on server shutting down: %s", err.Error())
+		logrus.Errorf("failed to shutting down server: %s", err.Error())
 	}
 
 	if err = db.Close(); err != nil {
-		logrus.Errorf("an error occurred when closing the connection to the database: %s", err.Error())
+		logrus.Errorf("failed to close connection to database: %s", err.Error())
 	}
-}
-
-func initConfig() error {
-	viper.AddConfigPath("configs/")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
 }

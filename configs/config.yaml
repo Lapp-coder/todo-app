@@ -1,0 +1,17 @@
+server:
+  host: "0.0.0.0"
+  port: "8080"
+  max_header_bytes: 1 # MB
+  read_timeout: 10 # seconds
+  write_timeout: 10 # seconds
+
+service:
+  token_ttl: 900 # seconds
+
+postgres_db:
+  host: "db"
+  port: "5432"
+  username: "postgres"
+  db_name: "postgres"
+  ssl_mode: "disable"
+
