@@ -6,6 +6,10 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var _ Authorization = (*postgres.AuthRepository)(nil)
+var _ TodoList = (*postgres.TodoListRepository)(nil)
+var _ TodoItem = (*postgres.TodoItem)(nil)
+
 type Authorization interface {
 	CreateUser(user model.User) (int, error)
 	GetUser(email string) (model.User, error)
